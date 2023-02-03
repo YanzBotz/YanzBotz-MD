@@ -26,7 +26,7 @@
   const AI2D = modul['AI2D'];
   const { Configuration, OpenAIApi } = require("openai");
   const configuration = new Configuration({
-  apiKey: "sk-xxxx", //Apikey luh
+  apiKey: "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", //Apikey luh
    });
   const openai = new OpenAIApi(configuration);
  
