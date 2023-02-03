@@ -289,7 +289,7 @@ var createAI = await openai.createImage({
     n: 1,
     size: "512x512"
 })
-client.sendMessage(from, { image: { url: createAI.data.data[0].url }, caption: '*'+text+'*' }, { quoted: msg })
+client.sendMessage(from, { image: { url: createAI.data.data[0].url }, caption: '*'+q+'*' }, { quoted: msg })
 } catch (e) {
 msg.reply("Error!\n\n"+e)
 }
