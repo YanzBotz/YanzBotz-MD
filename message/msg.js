@@ -280,7 +280,7 @@ case prefix + ['self'] :{
         }
       break
 case prefix + ['ai-img'] :{
-if (!q) return m.reply("Input Text!")
+if (!q) return msg.reply("Input Text!")
 var jadien = await Ikyy.tools.translate(text, 'en')
 m.reply("Wait...,Making...")
 try {
