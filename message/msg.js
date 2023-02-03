@@ -279,7 +279,7 @@ case prefix + ['self'] :{
           msg.reply(keywords[0]['mode'][1])
         }
       break
-case prefix+ ['ai-img'] :
+case prefix + ['ai-img'] :{
 if (!q) return m.reply("Input Text!")
 var jadien = await Ikyy.tools.translate(text, 'en')
 m.reply("Wait...,Making...")
@@ -292,6 +292,7 @@ var createAI = await openai.createImage({
 client.sendMessage(from, { image: { url: createAI.data.data[0].url }, caption: '*'+text+'*' }, { quoted: msh })
 } catch (e) {
 msg.reply("Error!\n\n"+e)
+}
 }
 break
     //=============================0==========================// 
