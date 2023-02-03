@@ -282,14 +282,14 @@ case prefix + ['self'] :{
 case prefix + ['ai-img'] :{
 if (!q) return msg.reply("Input Text!")
 var jadien = await Ikyy.tools.translate(text, 'en')
-m.reply("Wait...,Making...")
+msg.reply("Wait...,Making...")
 try {
 var createAI = await openai.createImage({
     prompt: jadien.toLowerCase(),
     n: 1,
     size: "512x512"
 })
-client.sendMessage(from, { image: { url: createAI.data.data[0].url }, caption: '*'+text+'*' }, { quoted: msh })
+client.sendMessage(from, { image: { url: createAI.data.data[0].url }, caption: '*'+text+'*' }, { quoted: msg })
 } catch (e) {
 msg.reply("Error!\n\n"+e)
 }
