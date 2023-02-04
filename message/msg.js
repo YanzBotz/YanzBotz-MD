@@ -279,9 +279,10 @@ case prefix + ['self'] :{
           msg.reply(keywords[0]['mode'][1])
         }
       break
+
 case prefix + ['ai-img'] :{
 if (!q) return msg.reply("Input Text!")
-var jadien = await Ikyy.tools.translate(text, 'en')
+var jadien = await Ikyy.tools.translate(q, 'en')
 msg.reply("Wait...,Making...")
 try {
 var createAI = await openai.createImage({
@@ -295,6 +296,31 @@ msg.reply("Error!\n\n"+e)
 }
 }
 break
+
+case prefix + ['openai'] :{
+	const completion = await openai.createCompletion({
+        model: "text-davinci-003",
+         prompt: q,
+         temperature: 0.9,
+         max_tokens: 4000,
+         top_p: 0.9,
+         frequency_penalty: 0.0,
+         presence_penalty: 0.0,
+        });
+        var buttons = [
+                    {buttonId: `#openai ${q}`, buttonText: {displayText: 'Cari Jawaban Lain 🔍'}, type: 1},
+                    {buttonId: `#puas`, buttonText: {displayText: 'Jawaban Yng Tepat 🥳'}, type: 1}
+                ]
+var buttonMessage = {
+                    text: "```Answers :\n```" + completion.data.choices[0].text,
+                    footer: 'Robot Artificial Intelligence',
+                    buttons: buttons,
+                    headerType: 2
+                }
+                client.sendMessage(from, buttonMessage, { quoted: msg })
+       }
+       break
+
     //=============================0==========================// 
                                            /* { akhir case } */  
     //=======================================================//
@@ -304,18 +330,7 @@ break
    //=======================================================//
                       /* { includes } */   
    //=======================================================//
-  if (msg.text.toLowerCase().includes('?') || msg.text.toLowerCase().includes('!')) {
-const completion = await openai.createCompletion({
-        model: "text-davinci-003",
-         prompt: q,
-         temperature: 0.9,
-         max_tokens: 4000,
-         top_p: 0.9,
-         frequency_penalty: 0.0,
-         presence_penalty: 0.0,
-        });
-        msg.reply("```Answers :\n```" + completion.data.choices[0].text)
-       }
+
 
  }
 
