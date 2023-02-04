@@ -20,7 +20,7 @@
   const QrCode = modul['QrCode'];
   const qr = new QrCode();
   const ikyyClient = modul['ikyy'];
-  const Ikyy = new ikyyClient;
+  const Ikyy = new ikyyClient();
   const { sizeFormatter } = modul['sizeFormater']
   const speed = modul['speed'];
   const request = modul['request'];
