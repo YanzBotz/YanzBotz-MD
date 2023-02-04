@@ -298,6 +298,7 @@ msg.reply("Error!\n\n"+e)
 break
 
 case prefix + ['openai'] :{
+        if (!q) return msg.reply("Input Text!!!")
 	const completion = await openai.createCompletion({
         model: "text-davinci-003",
          prompt: q,
