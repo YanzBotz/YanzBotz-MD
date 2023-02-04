@@ -251,7 +251,7 @@ async function pepe(media) {
     switch(order){
      
      case prefix + ['tes'] :{
-     -msg.reply('_Oke sip nyala botnya_')
+     msg.reply('_Oke sip nyala botnya_')
      }
      break
 
