@@ -14,7 +14,6 @@
     "@adiwajshing/baileys": "^4.4.0",
     "@adiwajshing/keyed-db": "^0.2.4",
     "@develoka/angka-terbilang-js": "^1.4.2",
-    "@arugaz/ai2d": "^1.0.1",
     "aki-api": "^6.0.8",
     "awesome-phonenumber": "^2.54.0",
     "axios": "^0.24.0",
