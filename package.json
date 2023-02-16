@@ -60,6 +60,7 @@
     "reverse-image-search-google": "^1.0.3",
     "spinnies": "^0.5.1",
     "ssml-builder": "^0.4.3",
+    "syntax-error": "^1.4.0",
     "terminal-kit": "^2.4.0",
     "typescript": "^4.6.3",
     "uninstall": "0.0.0",
