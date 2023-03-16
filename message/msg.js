@@ -37,7 +37,6 @@
  
   const { color, bgcolor, ConsoleLog, biocolor } = require('.' + getreq['color'])
   const { reSize, runtime, getBuffer, getRandom, pickRandom, fetchJson, genMath} = require('.' + getreq['funct'])
-  const { smsg, formatp, fetchText, isUrl, jsonformat, bytesToSize, makeid, tanggal, clockString} = require('../lib/myfunc')
   const { imageToWebp, videoToWebp, writeExifImg, writeExifVid, writeExif, writeExifStc } = require('.' + getreq['exif'])
   
   //=======================================================//
@@ -133,7 +132,7 @@ const isQuotedReply = isQuotedMsg ? content.includes('Message') ? true : false :
    //=======================================================//      
          /* { stiker limit } */
    //=======================================================//
-msg.text = msg.msg.text || msg.msg.caption || msg.message.conversation || msg.msg.contentText || msg.msg.selectedDisplayText || msg.msg.title || ''   
+
 const sendLimit = () => {
             return client.sendMessage(from, {
                 sticker: fs.readFileSync('./storage/limit.webp')
