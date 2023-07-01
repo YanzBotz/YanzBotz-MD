@@ -13,7 +13,6 @@
   const ytsr = modul['ytsr'];
   const { spawn, exec } = modul['child'];
   const { downloadContentFromMessage, WA_DEFAULT_EPHEMERAL, getLastMessageInChat, MessageType, generateWAMessageFromContent, proto } = modul['baileys'];
-  const { GRIS, SearchResult } = modul['gris'];
   const moment = modul['time'];
   const time = moment.tz('Asia/Jakarta').format('DD/MM HH:mm:ss')
   const qrcode = modul['qrcode'];
@@ -30,6 +29,7 @@
   apiKey: "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", //Apikey luh
    });
   const openai = new OpenAIApi(configuration);
+  const dl = require('@bochilteam/scraper')
  
    //=======================================================//
                        /* { js } */
@@ -252,6 +252,65 @@ async function pepe(media) {
      msg.reply('_Oke sip nyala botnya_')
      }
      break
+     
+case prefix + ["menu"]: {
+client.sendMessage(from, { text: `*List menu YanzBotz-MD*
+
+々 *INFO USER*
+• Nama Owner : YanzBotzX
+• Nomer Owner : 085883359262
+
+々 *MENU*
+.self
+.public`, 
+                    contextInfo: { externalAdReply: {
+                    title: "YanzBotz-MD",
+					sourceUrl: "https://chat.whatsapp.com/KfQNICkv8CB7FgynDcbafX",
+					mediaUrl: "https://github.com/YanzBotz/YanzBotz-MD",
+					mediaType: 1,
+					showAdAttribution: true,
+					renderLargerThumbnail: true,
+					thumbnailUrl: "https://telegra.ph/file/fe2bf76f0c23d1cbe79ec.jpg" }}}, {quoted: msg})
+}
+break    
+
+case prefix + 'alquran': {
+	if (!(args[0] || args[1])) return msg.reply(`contoh:\n${prefix + command} 1 2\n\nmaka hasilnya adalah surah Al-Fatihah ayat 2 beserta audionya, & ayatnya 1 saja`)
+    if (isNaN(args[0]) || isNaN(args[1])) msg.reply(`contoh:\n${prefix + command} 1 2\n\nmaka hasilnya adalah surah Al-Fatihah ayat 2 beserta audionya, dan ayatnya 1 aja`)
+    let api = await dl.alquran()
+    let mes = `
+${api[args[0] - 1].ayahs[args[1] - 1].text.ar}
+    
+${api[args[0] - 1].ayahs[args[1] - 1].translation.id}
+( Q.S ${api[args[0] - 1 ].asma.id.short} : ${api[args[0] - 1].ayahs[args[1] - 1].number.insurah} )
+`.trim()
+    msg.reply(mes)
+    client.sendMessage(from, {audio: { url: api[args[0] - 1].ayahs[args[1] - 1].audio.url }, mimetype: 'audio/mpeg', ptt:true }, { quoted : msg })
+}
+break
+
+case prefix + ['s'] : case prefix + ['stiker'] : case prefix + ['setiker'] : case prefix + ['sticker'] :{
+          if ((isMedia && !msg.message.videoMessage || msg.isQuotedImage) && args.length == 0) {
+             client.sendMessage(from, { react: { text: "⏱️", key: msg.key }})
+             var stream = await downloadContentFromMessage(msg.message.imageMessage || msg.message.extendedTextMessage?.contextInfo.quotedMessage.imageMessage, 'image')
+             var buffer = Buffer.from([])
+               for await(const chunk of stream) {
+                  buffer = Buffer.concat([buffer, chunk])
+               }
+             let buffers = await writeExifImg(buffer, { packname: SETTING['packname'], author: SETTING['author'] })
+           await client.sendMessage(from, { sticker: { url: buffers } }, { quoted: msg })
+          } else if ((isMedia && msg.message.videoMessage.seconds < 11 || msg.isQuotedVideo && msg.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
+               client.sendMessage(from, { react: { text: "⏱️", key: msg.key }})
+                var stream = await downloadContentFromMessage(msg.message.videoMessage || msg.message.extendedTextMessage?.contextInfo.quotedMessage.videoMessage, 'video')
+                var buffer = Buffer.from([])
+                  for await(const chunk of stream) {
+                     buffer = Buffer.concat([buffer, chunk])
+                  }
+             let buffers = await writeExifVid(buffer, { packname: SETTING['packname'], author: SETTING['author'] })
+           await client.sendMessage(from, { sticker: { url: buffers } }, { quoted: msg })
+           } else { msg.reply(`Reply gambar/video/sticker dengan caption ${prefix + 'sticker'} \n*(MAKSIMAL 10 DETIK!)*`) }
+         }
+       break
 
 case prefix + ['chat'] :
 if(!isOwner) return
@@ -295,8 +354,12 @@ msg.reply("Error!\n\n"+e)
 }
 break
 
-case prefix + ['openai'] :{
-        if (!q) return msg.reply("Input Text!!!")
+case "ai" : case "openai": case prefix + ['ai'] : case prefix + ['openai'] :{
+if (!isPremium) return msg.reply(`Kamu bukan user premium, kirim perintah *${prefix}buypremium* untuk membeli premium`)
+let ane = 9
+var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+if (cekvip.days < ane ) return msg.reply('Maaf anda harus membeli premium vip, premium vip di atas 10d keatas')
+if(!q) return msg.reply('Mau tanya apa?')
 	const completion = await openai.createCompletion({
         model: "text-davinci-003",
          prompt: q,
@@ -306,19 +369,10 @@ case prefix + ['openai'] :{
          frequency_penalty: 0.0,
          presence_penalty: 0.0,
         });
-        var buttons = [
-                    {buttonId: `#openai ${q}`, buttonText: {displayText: 'Cari Jawaban Lain 🔍'}, type: 1},
-                    {buttonId: `#puas`, buttonText: {displayText: 'Jawaban Yng Tepat 🥳'}, type: 1}
-                ]
-var buttonMessage = {
-                    text: "```Answers :\n```" + completion.data.choices[0].text,
-                    footer: 'Robot Artificial Intelligence',
-                    buttons: buttons,
-                    headerType: 2
-                }
-                client.sendMessage(from, buttonMessage, { quoted: msg })
-       }
-       break
+      msg.reply("```Jawabannya :\n```" + completion.data.choices[0].text)        
+}
+break
+
 
     //=============================0==========================// 
                                            /* { akhir case } */  
