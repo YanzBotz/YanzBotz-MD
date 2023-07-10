@@ -355,21 +355,14 @@ msg.reply("Error!\n\n"+e)
 break
 
 case "ai" : case "openai": case prefix + ['ai'] : case prefix + ['openai'] :{
-if (!isPremium) return msg.reply(`Kamu bukan user premium, kirim perintah *${prefix}buypremium* untuk membeli premium`)
-let ane = 9
-var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
-if (cekvip.days < ane ) return msg.reply('Maaf anda harus membeli premium vip, premium vip di atas 10d keatas')
+case prefix + ['ai'] : case prefix + ['openai'] :{
+if (!isOwner) return 
 if(!q) return msg.reply('Mau tanya apa?')
-	const completion = await openai.createCompletion({
-        model: "text-davinci-003",
-         prompt: q,
-         temperature: 0.9,
-         max_tokens: 4000,
-         top_p: 0.9,
-         frequency_penalty: 0.0,
-         presence_penalty: 0.0,
-        });
-      msg.reply("```Jawabannya :\n```" + completion.data.choices[0].text)        
+  const chatCompletion = await openai.createChatCompletion({
+  model: "gpt-3.5-turbo",
+  messages: [{role: "user", content: `${q}`}],
+});
+msg.reply(chatCompletion.data.choices[0].message.content)
 }
 break
 
