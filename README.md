@@ -70,7 +70,6 @@ My Apikey [`api.yanzbotz`](https://1pt.co/api.yanzbotz)
 ## Thanks To
 * [`@adiwajshing/baileys`](https://github.com/adiwajshing/baileys)
 * [`YanzBotz`](https://github.com/YanzBotz)
-* [`Danz Dev`](https://github.com/Dantadev)
 * [`Febriansyah`](https://github.com/FebriansyahXd)
 * [`DikaArdnt`](https://github.com/DikaArdnt)
 * [`Rifza.p.p`](https://github.com/Rifza123)
