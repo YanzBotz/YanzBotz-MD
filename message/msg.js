@@ -354,9 +354,7 @@ msg.reply("Error!\n\n"+e)
 }
 break
 
-case "ai" : case "openai": case prefix + ['ai'] : case prefix + ['openai'] :{
 case prefix + ['ai'] : case prefix + ['openai'] :{
-if (!isOwner) return 
 if(!q) return msg.reply('Mau tanya apa?')
   const chatCompletion = await openai.createChatCompletion({
   model: "gpt-3.5-turbo",
