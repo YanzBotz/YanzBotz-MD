@@ -28,7 +28,10 @@
   const { Configuration, OpenAIApi } = modul["openai"]
   const configuration = new Configuration({ apiKey : SETTING["api"]["openai"][0] });
   const openai = new OpenAIApi(configuration);  
- 
+
+/*<--------------------( external function )--------------------->*/
+const { instagram } = require('.' + getreq['scrapp'])
+
    //=======================================================//
                        /* { js } */
    //=======================================================//
@@ -52,9 +55,6 @@ module.exports = async(msg, client, from, store) => {
     //=======================================================//
                           /* { detect } */  
     //=======================================================//
-   const banChats = SETTING['banchats']
-   const anti212 = SETTING['banned']['maroko']
-   const anti9 = SETTING['banned']['india']
    const isGrouP = msg.key.remoteJid.endsWith('@g.us')
    const sender = isGrouP ? (msg.key.participant ? msg.key.participant : msg.participant) : msg.key.remoteJid
    const pushname = msg.pushName || "No Name"
@@ -85,6 +85,10 @@ module.exports = async(msg, client, from, store) => {
    const isBotGroupAdmins = client.groupAdmins.includes(botNumber) || false
    const isGroupAdmins = client.groupAdmins.includes(msg.sender)
    
+   //=======================================================//
+                    /* { quoted } */  
+    //=======================================================//
+
 const isWebp = (msg.xtype === 'imageMessage' || msg.xtype === 'videoMessage')
 const isImage = (msg.xtype == 'imageMessage')
 const isVideo = (msg.xtype == 'videoMessage')
@@ -97,10 +101,6 @@ const isQuotedVideo = isQuotedMsg ? content.includes('videoMessage') ? true : fa
 const isQuotedSticker = isQuotedMsg ? content.includes('stickerMessage') ? true : false : false
 const isQuotedTag = isQuotedMsg ? content.includes('mentionedJid') ? true : false : false
 const isQuotedReply = isQuotedMsg ? content.includes('Message') ? true : false : false
-   //=======================================================//
-                    /* { quoted } */  
-    //=======================================================//
-  
  
    //=======================================================//
                     /* { participant mentions } */   
