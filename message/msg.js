@@ -213,7 +213,7 @@ const nay1 = { key: {fromMe: false, participant: "0@s.whatsapp.net", ...(from ? 
      //=======================================================//
      
      const jimp_1 = require('jimp')
-async function pepe(media) {
+      async function pepe(media) {
 	const jimp = await jimp_1.read(media)
 	const min = jimp.getWidth()
 	const max = jimp.getHeight()
@@ -223,11 +223,6 @@ async function pepe(media) {
 		preview: await cropped.normalize().getBufferAsync(jimp_1.MIME_JPEG)
 	}
 }
-   
-   //=======================================================//       
-     //true = self / false = public
-     if (banChats === true) { if(!isOwner && !msg.key.fromMe) return }  
-     //blocked country!
 
    //=======================================================//
                              /* { conlog cmd } */
