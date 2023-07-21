@@ -262,6 +262,7 @@ client.sendMessage(from, { text: `*List menu YanzBotz-MD*
 • ${prefix}sticker
 • ${prefix}chat
 • ${prefix}tiktok
+• ${prefix}instagram
 • ${prefix}aiimg
 • ${prefix}ai
 `, 
