@@ -1,5 +1,5 @@
  const SETTING = require('../lib/validator/config')
-  const keywords = require('../lib/validator/allKeywords')
+ const keywords = require('../lib/validator/allKeywords')
   //=======================================================//
                       /* { module } */
   //=======================================================//
@@ -273,7 +273,7 @@ mediaUrl: "https://github.com/YanzBotz/YanzBotz-MD",
 mediaType: 1,
 showAdAttribution: true,
 renderLargerThumbnail: true,
-thumbnailUrl: "https://telegra.ph/file/fe2bf76f0c23d1cbe79ec.jpg" }}}, {quoted: msg})
+thumbnailUrl: "https://telegra.ph/file/72dac7d98b7394ce78845.jpg" }}}, {quoted: msg})
 }
 break    
 
