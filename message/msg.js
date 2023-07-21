@@ -37,7 +37,7 @@ const { instagram } = require('.' + getreq['scrapp'])
    //=======================================================//
  
   const { color, bgcolor, ConsoleLog, biocolor } = require('.' + getreq['color'])
-  const { reSize, runtime, getBuffer, getRandom, pickRandom, fetchJson, genMath} = require('.' + getreq['funct'])
+  const { reSize, runtime, getBuffer, getRandom, pickRandom, fetchJson, isUrl, genMath, formatp} = require('.' + getreq['funct'])
   const { imageToWebp, videoToWebp, writeExifImg, writeExifVid, writeExif, writeExifStc } = require('.' + getreq['exif'])
   
   //=======================================================//
