@@ -24,12 +24,10 @@
   const speed = modul['speed'];
   const request = modul['request'];
   const path = modul['path'];
-  const { Configuration, OpenAIApi } = require("openai");
-  const configuration = new Configuration({
-  apiKey: "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", //Apikey luh
-   });
-  const openai = new OpenAIApi(configuration);
-  const dl = require('@bochilteam/scraper')
+  const dl = modul['bochil'];
+  const { Configuration, OpenAIApi } = modul["openai"]
+  const configuration = new Configuration({ apiKey : SETTING["api"]["openai"][0] });
+  const openai = new OpenAIApi(configuration);  
  
    //=======================================================//
                        /* { js } */
