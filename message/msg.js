@@ -281,6 +281,22 @@ thumbnailUrl: "https://telegra.ph/file/fe2bf76f0c23d1cbe79ec.jpg" }}}, {quoted: 
 }
 break    
 
+case prefix + ['instagram'] : case prefix + ['ig'] :
+ if (!q)return msg.reply(`Berikan Link\nExample : ${command} link`)
+ if (!isUrl(q)) return msg.reply(`Link Ga Sesuai`)
+ if (!q.includes('instagram.com')) return msg.reply(`Link Ga Sesuai`)
+ msg.reply('_Sedang Mendownload...')
+ instagram(q).then( data => {
+ for ( let i of data ) {
+ if (i.type === "video") {
+ client.sendMessage(from, {video: {url: i.url}}, {quoted: msg })
+ } else if (i.type === "image") {
+ client.sendMessage(from, { caption: `Sukses, Follow Instagram : @arsrfii`, image: { url: i.url }}, {quoted: msg })
+            }
+     }
+ }).catch(() => msg.reply(`ERORR. Postingan tidak Tersedia`))
+break
+
 case prefix + ['tiktok'] :  {
 if (!q) return msg.reply(`Masukan Text\nExample ${prefix}tiktok https://vm.tiktok.com/ZS8CoY9UX/`)
 if (!q.includes('tiktok')) return msg.reply('Link Tidak Valid. Masukan Link Dengan Benar.')
