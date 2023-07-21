@@ -258,20 +258,40 @@ client.sendMessage(from, { text: `*List menu YanzBotz-MD*
 • Nama Owner : YanzBotzX
 • Nomer Owner : 085883359262
 
+々 *OWNER MENU*
+• ${prefix}self
+• ${prefix}public
+
 々 *MENU*
-.self
-.public`, 
-                    contextInfo: { externalAdReply: {
-                    title: "YanzBotz-MD",
-					sourceUrl: "https://chat.whatsapp.com/KfQNICkv8CB7FgynDcbafX",
-					mediaUrl: "https://github.com/YanzBotz/YanzBotz-MD",
-					mediaType: 1,
-					showAdAttribution: true,
-					renderLargerThumbnail: true,
-					thumbnailUrl: "https://telegra.ph/file/fe2bf76f0c23d1cbe79ec.jpg" }}}, {quoted: msg})
+• ${prefix}alquran
+• ${prefix}sticker
+• ${prefix}chat
+• ${prefix}tiktok
+• ${prefix}aiimg
+• ${prefix}ai
+`, 
+contextInfo: { externalAdReply: {
+title: "YanzBotz-MD",
+sourceUrl: "https://chat.whatsapp.com/KfQNICkv8CB7FgynDcbafX",
+mediaUrl: "https://github.com/YanzBotz/YanzBotz-MD",
+mediaType: 1,
+showAdAttribution: true,
+renderLargerThumbnail: true,
+thumbnailUrl: "https://telegra.ph/file/fe2bf76f0c23d1cbe79ec.jpg" }}}, {quoted: msg})
 }
 break    
 
+case prefix + ['tiktok'] :  {
+if (!q) return msg.reply(`Masukan Text\nExample ${prefix}tiktok https://vm.tiktok.com/ZS8CoY9UX/`)
+if (!q.includes('tiktok')) return msg.reply('Link Tidak Valid. Masukan Link Dengan Benar.')
+msg.reply('_Sedang Mendownload...')
+dl.savefrom(q).then ( data => {
+msg.reply(`*[ TIKTOK ]*\n\nTitle : ${data[0].meta.title}\nDurasi : ${data[0].meta.duration}\n\n_Wait A Minute._`)
+client.sendMessage(from, {video: {url: data[0].url[0].url}, caption: data[0].meta.title})
+         })
+     }
+ break		    
+		    
 case prefix + 'alquran': {
 	if (!(args[0] || args[1])) return msg.reply(`contoh:\n${prefix + command} 1 2\n\nmaka hasilnya adalah surah Al-Fatihah ayat 2 beserta audionya, & ayatnya 1 saja`)
     if (isNaN(args[0]) || isNaN(args[1])) msg.reply(`contoh:\n${prefix + command} 1 2\n\nmaka hasilnya adalah surah Al-Fatihah ayat 2 beserta audionya, dan ayatnya 1 aja`)
@@ -335,7 +355,7 @@ case prefix + ['self'] :{
         }
       break
 
-case prefix + ['ai-img'] :{
+case prefix + ['aiimg'] :{
 if (!q) return msg.reply("Input Text!")
 var jadien = await Ikyy.tools.translate(q, 'en')
 msg.reply("Wait...,Making...")
