@@ -28,7 +28,8 @@
   let { Boom } = SETTING['modul']['boom']
   const PhoneNumber = SETTING['modul']['phonenumber']
   const { move } = require(SETTING['file']['move'])
-  let { default: makeWASocket, useMultiFileAuthState, jidDecode, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, getContentType, proto } = SETTING['modul']['baileys']
+  const { smsg } = require(SETTING['file']['yanz'])
+  let { default: makeWASocket, useMultiFileAuthState, jidDecode, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, getContentType, proto, getAggregateVotesInPollMessage } = SETTING['modul']['baileys']
   const { color, bgcolor, ConsoleLog, biocolor } = require(SETTING['file']['color'])
 
   const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
@@ -43,9 +44,20 @@
          async function operate () {         
               let { state, saveCreds } = await useMultiFileAuthState(SETTING.sesionName)
               let { version } = fetchLatestBaileysVersion()
-              const client = makeWASocket({ logger: pino({ level: 'silent' }), printQRInTerminal: true, browser: ['YanzBotz MD','Safari','1.0.0'], auth: state })
-              
-              
+              const client = makeWASocket({ logger: pino({ level: 'silent' }), printQRInTerminal: true, browser: ['YanzBotz MD','Safari','1.0.0'], 
+            auth: state,
+            getMessage: async (key) => {
+            if (store) {
+                const msg = await store.loadMessage(key.remoteJid, key.id)
+                return msg.message || undefined
+            }
+            return {
+                conversation: "Hai Im YanzBotz"
+            }
+        }
+     })
+
+
                 /** plugins **/
              let pluginFolder = path.join(__dirname, './plugins')
               let pluginFilter = filename => /\.js$/.test(filename)
@@ -131,10 +143,43 @@
                            const type = getContentType(msg.message)
                            const textMessage = (type === 'conversation') ? msg.message.conversation : (type === 'extendedTextMessage') ? msg.message.extendedTextMessage.text : ''
                           move(client, msg, store) 
+                          smsg(client, msg, store) 
                      require('./message/msg.js')(msg, client, from, store) //client.sendPresenceUpdate('recording', from) 
                   })
-                          
-               
+                  
+                  
+//*------------------------------------------------------------------------------------------------------------------------------------------------------------------*//                       
+                // respon polling
+                
+async function getMessage(key) {
+  	if (store) {
+  		const msg = await store.loadMessage(key.remoteJid, key.id)
+  		return msg?.message
+      }  
+      return {
+      	conversation: "Hai Im YanzBotzX"
+      }  
+  }
+  
+  client.ev.on('messages.update', async chatUpdate => {
+  	for (const { key, update } of chatUpdate) {
+  		if (update.pollUpdates && key.fromMe) {
+  			const pollCreation = await getMessage(key)
+  			if(pollCreation) {
+  				const pollUpdate = await getAggregateVotesInPollMessage({
+  					message: pollCreation,
+  					pollUpdates: update.pollUpdates,
+  			    })		
+  		        var toCmd = pollUpdate.filter(v => v.voters.length !== 0)[0]?.name	    
+  		        if (toCmd == undefined) return
+  		        var prefCmd = prefix+toCmd
+  		        client.appenTextMessage(prefCmd, chatUpdate)
+  		    }
+  		 }
+  	}
+  })	           
+                  
+client.sendPoll = (jid, name = '', values = [], selectableCount = 1) => { return client.sendMessage(jid, { poll: { name, values, selectableCount }}) }               
    
                
          }
