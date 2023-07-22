@@ -174,32 +174,20 @@ const nay1 = { key: {fromMe: false, participant: "0@s.whatsapp.net", ...(from ? 
                                          /* { eval } */
     //=======================================================//
     
-       if (chatmessage.startsWith('=>')) {
-        if (!isOwner) return 
-         function Return(sul) {
-         sat = JSON.stringify(sul, null, 2)
-         bang = util.format(sat)
-         if (sat == undefined) {
-            bang = util.format(sul)
-          }
-          return msg.reply(bang)
-         }
-        try {
-         msg.reply(util.format(eval(`(async () => { ${chatmessage.slice(3)} })()`)))
-        } catch (e) {
-         msg.reply(String(e))
-        }
-          }       
-      if (chatmessage.startsWith('>')) {
-       if (!isOwner) return 
-        try {
-          let evaled = await eval(chatmessage.slice(2))
-           if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
-           await msg.reply(evaled)
-         } catch (err) {
-           msg.reply(String(err))
-        }
-       }
+if (chatmessage.startsWith('>')) {
+if (!isOwner) return 
+if (!q) return msg.reply('Masukan Parameter Code!')
+let kode = chatmessage.trim().split(/ +/)[0]
+let teks
+try {
+teks = await eval(`(async () => { ${kode == ">>" ? "return" : ""} ${q}})()`)
+} catch (e) {
+teks = e
+} finally {
+await msg.reply(require('util').format(teks))
+}
+}
+
      if (chatmessage.startsWith('$')) {
        if (!isOwner) return 
         exec(chatmessage.slice(2), (err, stdout) => {
