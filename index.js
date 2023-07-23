@@ -27,12 +27,19 @@
   const path = SETTING['modul']['path']
   let { Boom } = SETTING['modul']['boom']
   const PhoneNumber = SETTING['modul']['phonenumber']
+  const readline = SETTING['modul']['readline']
   const { move } = require(SETTING['file']['move'])
   const { smsg } = require(SETTING['file']['yanz'])
   let { default: makeWASocket, useMultiFileAuthState, jidDecode, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, getContentType, proto, getAggregateVotesInPollMessage } = SETTING['modul']['baileys']
   const { color, bgcolor, ConsoleLog, biocolor } = require(SETTING['file']['color'])
 
+//store
   const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
+
+//pairingCode
+  const pairingCode = process.argv.includes("--pairing-code")
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+  const question = (text) => new Promise((resolve) => rl.question(text, resolve))
      //=======================================================//
                                /* { function } */
      //=======================================================//
@@ -44,9 +51,12 @@
          async function operate () {         
               let { state, saveCreds } = await useMultiFileAuthState(SETTING.sesionName)
               let { version } = fetchLatestBaileysVersion()
-              const client = makeWASocket({ logger: pino({ level: 'silent' }), printQRInTerminal: true, browser: ['YanzBotz MD','Safari','1.0.0'], 
-            auth: state,
-            getMessage: async (key) => {
+              const client = makeWASocket({ 
+		      logger: pino({ level: 'silent' }), 
+		      printQRInTerminal: !pairingCode, 
+		      browser: ['YanzBotz MD','Safari','1.0.0'], 
+                      auth: state,
+                      getMessage: async (key) => {
             if (store) {
                 const msg = await store.loadMessage(key.remoteJid, key.id)
                 return msg.message || undefined
@@ -117,8 +127,12 @@
               
 
            //*------------------------------------------------------------------------------------------------------------------------------------------------------------------*//                       
-                // anticall auto block
-             
+      // pairing by @whiskeysockets/baileys
+      if (pairingCode && !client.authState.creds.registered) {
+      const phoneNumber = await question(`Please type your WhatsApp number : `)
+      let code = await client.requestPairingCode(phoneNumber)
+      console.log(`Your Pairing Code : `)
+}
                 
                client.ev.on('connection.update', async (update) => {
                    let { Connecting } = require("./connection/systemConnext.js")        
