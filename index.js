@@ -134,7 +134,7 @@
       if (pairingCode && !client.authState.creds.registered) {
       const phoneNumber = await question(`Please type your WhatsApp number : `)
       let code = await client.requestPairingCode(phoneNumber)
-      console.log(`Your Pairing Code : `)
+      console.log(`Your Pairing Code : ${code}`)
 }
                 
                client.ev.on('connection.update', async (update) => {
