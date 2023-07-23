@@ -27,6 +27,7 @@
   const path = SETTING['modul']['path']
   let { Boom } = SETTING['modul']['boom']
   const PhoneNumber = SETTING['modul']['phonenumber']
+  const NodeCache = SETTING['modul']['node-cache]
   const readline = SETTING['modul']['readline']
   const { move } = require(SETTING['file']['move'])
   const { smsg } = require(SETTING['file']['yanz'])
@@ -51,6 +52,7 @@
          async function operate () {         
               let { state, saveCreds } = await useMultiFileAuthState(SETTING.sesionName)
               let { version } = fetchLatestBaileysVersion()
+	      const msgRetryCounterCache = new NodeCache()
               const client = makeWASocket({ 
 		      logger: pino({ level: 'silent' }), 
 		      printQRInTerminal: !pairingCode, 
@@ -63,8 +65,9 @@
             }
             return {
                 conversation: "Hai Im YanzBotz"
-            }
-        }
+	   }
+	},
+		      msgRetryCounterCache
      })
 
 
