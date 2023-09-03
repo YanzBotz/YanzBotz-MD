@@ -25,17 +25,25 @@
   const request = modul['request'];
   const path = modul['path'];
   const dl = modul['bochil'];
-  const { Configuration, OpenAIApi } = modul["openai"]
-  const configuration = new Configuration({ apiKey : SETTING["api"]["openai"][0] });
-  const openai = new OpenAIApi(configuration);  
 
 /*<--------------------( external function )--------------------->*/
-const { instagram } = require('.' + getreq['scrapp'])
+  const { instagram } = require('.' + getreq['scrapp'])
+  const _prem = require('.' + getreq['prem'])
+  const { isLimit, limitAdd, getLimit, giveLimit, addBalance, kurangBalance, getBalance, isGame, gameAdd, givegame, cekGLimit } = require('.' + getreq['limit'])
+  
+   //=======================================================//
+                       /* { database } */
+   //=======================================================//
+   
+   var balance = JSON.parse(fs.readFileSync('./database/balance.json'));
+   var limit = JSON.parse(fs.readFileSync('./database/limit.json'));
+   var glimit = JSON.parse(fs.readFileSync('./database/glimit.json'));
+   var premium = JSON.parse(fs.readFileSync('./database/premium.json'));
 
    //=======================================================//
                        /* { js } */
    //=======================================================//
- 
+   
   const { color, bgcolor, ConsoleLog, biocolor } = require('.' + getreq['color'])
   const { reSize, runtime, getBuffer, getRandom, pickRandom, fetchJson, isUrl, genMath, formatp} = require('.' + getreq['funct'])
   const { imageToWebp, videoToWebp, writeExifImg, writeExifVid, writeExif, writeExifStc } = require('.' + getreq['exif'])
@@ -85,24 +93,16 @@ module.exports = async(msg, client, from, store) => {
          client.groupAdmins = isGroup ? msg.getGroupAdmins(client.groupMembers) : ''
    const isBotGroupAdmins = client.groupAdmins.includes(botNumber) || false
    const isGroupAdmins = client.groupAdmins.includes(msg.sender)
+   const isPremium = isOwner ? true : _prem.checkPremiumUser(sender, premium)
+   const gcounti = SETTING.gcount
+   const gcount = isPremium ? gcounti.prem : gcounti.user
    
    //=======================================================//
-                    /* { quoted } */  
+                    /* { Premium } */  
     //=======================================================//
 
-const isWebp = (msg.xtype === 'imageMessage' || msg.xtype === 'videoMessage')
-const isImage = (msg.xtype == 'imageMessage')
-const isVideo = (msg.xtype == 'videoMessage')
-const isSticker = (msg.xtype == 'stickerMessage')
-const isQuotedMsg = (msg.xtype == 'extendedTextMessage')
-const isQuotedImage = isQuotedMsg ? content.includes('imageMessage') ? true : false : false
-const isQuotedAudio = isQuotedMsg ? content.includes('audioMessage') ? true : false : false
-const isQuotedDocument = isQuotedMsg ? content.includes('documentMessage') ? true : false : false
-const isQuotedVideo = isQuotedMsg ? content.includes('videoMessage') ? true : false : false
-const isQuotedSticker = isQuotedMsg ? content.includes('stickerMessage') ? true : false : false
-const isQuotedTag = isQuotedMsg ? content.includes('mentionedJid') ? true : false : false
-const isQuotedReply = isQuotedMsg ? content.includes('Message') ? true : false : false
- 
+    _prem.expiredCheck(client, premium)
+
    //=======================================================//
                     /* { participant mentions } */   
    //=======================================================//
@@ -129,17 +129,26 @@ const isQuotedReply = isQuotedMsg ? content.includes('Message') ? true : false :
    
    
    //=======================================================//      
-         /* { stiker limit } */
+         /* { Function Hari } */
    //=======================================================//
-
-const sendLimit = () => {
-            return client.sendMessage(from, {
-                sticker: fs.readFileSync('./storage/limit.webp')
-            }, {
-                quoted: msg
-            })
-        }
         
+   const today = moment().tz("Asia/Jakarta")
+   const day = today.format('dddd');
+   const datee = today.format('D');
+   const month = today.format('MMMM');
+   const year = today.format('YYYY');
+   const jos = '```'
+   
+   //=======================================================//      
+         /* { Function Rp } */
+   //=======================================================//
+   
+   function Rp(angka) {
+    return "Rp. " + (angka < 0 ? "" : "") + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "";
+   }
+   const totaal = getBalance(sender, balance)
+   const belec = await Rp(`${totaal}`)
+   
    //=======================================================//
                          /* { plugins } */ 
     //=======================================================//
@@ -258,6 +267,20 @@ client.sendMessage(from, { text: `*List menu YanzBotz-MD*
 々 *AI MENU*
 • ${prefix}aiimg
 • ${prefix}ai
+• ${prefix}gptvoice
+
+々 *TOOLS MENU*
+• ${prefix}remini
+• ${prefix}rangkum
+
+々 *PREMIUM MENU*
+• ${prefix}balance
+• ${prefix}buylimit
+• ${prefix}buyglimit
+• ${prefix}topbalance
+• ${prefix}buypremium
+• ${prefix}cekpremium
+• ${prefix}listpremium 
 
 々 *GROUP MENU*
 • ${prefix}group
@@ -271,7 +294,279 @@ showAdAttribution: true,
 renderLargerThumbnail: true,
 thumbnailUrl: "https://telegra.ph/file/72dac7d98b7394ce78845.jpg" }}}, {quoted: msg})
 }
-break    
+break  
+
+case prefix + ['buypremium'] : case prefix + ['buyprem'] : {
+	if (isPremium) return msg.reply(`Kamu Sudah User Premium `)
+         if (!args[0]) return msg.reply("*Premium PerMinute:*\n1m | 2m | 3m | 4m | 5m | 6m | 7m | 9m | 10m\n\n*Premium PerHours:*\n1h | 2h | 3h | 4h | 5h | 6h | 7h | 8h | 9h | 10h\n\n*Premium Harian:*\n1d | 2d | 3d | 4d | 5d | 6d | 7d | 8d | 9d | 10d\n\n*Premium Bulanan:*\n30d | 60d\n\n*Premium Tahun:*\n365d\n\nExample : *#buypremium 1d*\nUntuk melihat harga premium silahkan ketik *#listharga*")
+          let preem = args[0]   
+           if (args[0] === "1d"){
+               let ane = 100000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+                var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "2d"){
+               let ane = 300000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+                var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "3d"){
+               let ane = 300000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                 _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "4d"){
+             let ane = 400000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                 _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "5d"){
+             let ane = 500000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "6d"){
+             let ane = 600000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "7d"){
+              let ane = 700000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "8d"){
+               let ane = 800000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "9d"){
+               let ane = 900000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                 _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "10d"){
+             let ane = 1000000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                 _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "1m"){
+             let ane = 1000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "2m"){
+             let ane = 2000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "3m"){
+              let ane = 3000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "4m"){
+             let ane = 4000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "5m"){
+             let ane = 5000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "6m"){
+              let ane = 6000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "7m"){
+             let ane = 7000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "8m"){
+             let ane = 8000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+               client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "9m"){
+              let ane = 9000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "10m"){
+             let ane = 10000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "1h"){
+             let ane = 41000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "2h"){
+             let ane = 42000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "3h"){
+              let ane = 43000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "4h"){
+             let ane = 44000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "5h"){
+             let ane = 45000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "6h"){
+              let ane = 46000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "7h"){
+             let ane = 47000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "8h"){
+             let ane = 48000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+              _prem.addPremiumUser(sender, args[0], premium)
+                 var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "9h"){
+              let ane = 49000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                  _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+           } else if (args[0] === "10h"){
+             let ane = 50000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+               var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "30d"){
+             let ane = 3000000000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+                var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "60d"){
+             let ane = 6000000000000000
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+                 var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+          } else if (args[0] === "365d"){
+             let ane = 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli premium_`)
+                kurangBalance(sender, ane, balance)
+                   _prem.addPremiumUser(sender, args[0], premium)
+                    var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+                var premiumnya = `${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                client.sendMessage(from, { text: `「 *TRANSAKSI BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n${jos}💌 EXPIRED : ${premiumnya}${jos}\n\n_Terimakasih telah berlangganan di premium kami_` }, {quoted: msg })
+            } else msg.reply('Belum tersedia, tunggu next update')
+          }
+         break
 
 case prefix + ['group'] : { 
      	if (!isGroup) return msg.reply('Khusus gc')
@@ -394,15 +689,49 @@ msg.reply("Error!\n\n"+e)
 }
 break
 
-case prefix + ['ai'] : case prefix + ['openai'] :{
-if(!q) return msg.reply('Mau tanya apa?')
-  const chatCompletion = await openai.createChatCompletion({
-  model: "gpt-3.5-turbo",
-  messages: [{role: "user", content: `${q}`}],
-});
-msg.reply(chatCompletion.data.choices[0].message.content)
-}
-break
+case prefix + ['ai'] : case prefix + ['openai'] : {
+        if (!q) return msg.reply('mau tanya apa')
+         try {
+         let quest = await fetchJson("https://api.akane.my.id/api/ai/openai?query=" + q)
+          client.sendMessage(from, {text: quest.result.choices[0].text }, { quoted: msg });
+          } catch (e) {
+          	msg.reply("Eror")
+           }
+        }
+        break 
+        
+case prefix + ['rangkum'] : case prefix + ['ringkas'] : {
+        if (!q) return msg.reply('mau tanya apa')
+         try {
+         let rangkum = await fetchJson("https://api.akane.my.id/api/ai/rangkum?query=" + q)
+          client.sendMessage(from, {text: rangkum.result }, { quoted: msg });
+          } catch (e) {
+          	msg.reply("Eror")
+           }
+        }
+        break 
+        
+case prefix + ['simi'] : case prefix + ['simisimi'] : {
+        if (!q) return msg.reply('mau tanya apa')
+         try {
+         let SimSimi = await fetchJson("https://api.akane.my.id/api/ai/simi?query=woy+kontol" + q)
+          client.sendMessage(from, {text: SimSimi.result }, { quoted: msg });
+          } catch (e) {
+          	msg.reply("Eror")
+           }
+        }
+        break                 
+
+case prefix + ['gptvoice'] : case prefix + ['aivn'] : {
+        if (!q) return msg.reply('mau tanya apa')
+         try {
+         let tes = await getBuffer(`https://api.akane.my.id/api/ai/gptvoice?query=${q}`)
+          client.sendMessage(from, { audio: tes, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
+          } catch (e) {
+          	msg.reply("Error!")
+           }
+        }
+        break      
 
 
     //=============================0==========================// 
