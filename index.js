@@ -56,7 +56,7 @@
               const client = makeWASocket({ 
 		      logger: pino({ level: 'silent' }), 
 		      printQRInTerminal: !pairingCode, 
-		      browser: ['YanzBotz MD','Safari','1.0.0'], 
+		      browser: ["Chrome (Linux)", "", ""],
                       auth: state,
                       getMessage: async (key) => {
             if (store) {
@@ -132,10 +132,16 @@
            //*------------------------------------------------------------------------------------------------------------------------------------------------------------------*//                       
       // pairing by @whiskeysockets/baileys
       if (pairingCode && !client.authState.creds.registered) {
-      const phoneNumber = await question(`Please type your WhatsApp number : `)
-      let code = await client.requestPairingCode(phoneNumber)
-      console.log(`Your Pairing Code : ${code}`)
-}
+	let phoneNumber = await question("Type your WhatsApp number: ");
+	phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
+	if (!Object.keys(PHONENUMBER_MCC).some(a => phoneNumber.startsWith(a))) {
+	console.log("invalid number.. type again!");
+	phoneNumber = await question("Type your WhatsApp number: ");
+	phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
+	}
+	let code = await client.requestPairingCode(phoneNumber)
+	console.log("Pairing Code : "+code);
+      }
                 
                client.ev.on('connection.update', async (update) => {
                    let { Connecting } = require("./connection/systemConnext.js")        
