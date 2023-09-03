@@ -132,15 +132,9 @@
            //*------------------------------------------------------------------------------------------------------------------------------------------------------------------*//                       
       // pairing by @whiskeysockets/baileys
       if (pairingCode && !client.authState.creds.registered) {
-	let phoneNumber = await question("Type your WhatsApp number: ");
-	phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
-	if (!Object.keys(PHONENUMBER_MCC).some(a => phoneNumber.startsWith(a))) {
-	console.log("invalid number.. type again!");
-	phoneNumber = await question("Type your WhatsApp number: ");
-	phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
-	}
-	let code = await client.requestPairingCode(phoneNumber)
-	console.log("Pairing Code : "+code);
+      const phoneNumber = await question(`Please type your WhatsApp number : `)
+      let code = await client.requestPairingCode(phoneNumber)
+      console.log(`Your Pairing Code : ${code}`)
       }
                 
                client.ev.on('connection.update', async (update) => {
