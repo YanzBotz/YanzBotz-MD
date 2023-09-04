@@ -25,6 +25,7 @@
   const request = modul['request'];
   const path = modul['path'];
   const dl = modul['bochil'];
+  const ms = modul['premium'];
 
 /*<--------------------( external function )--------------------->*/
   const { instagram } = require('.' + getreq['scrapp'])
@@ -96,6 +97,7 @@ module.exports = async(msg, client, from, store) => {
    const isPremium = isOwner ? true : _prem.checkPremiumUser(sender, premium)
    const gcounti = SETTING.gcount
    const gcount = isPremium ? gcounti.prem : gcounti.user
+   const limitCount = SETTING.limitCount
    
    //=======================================================//
                     /* { Premium } */  
@@ -149,6 +151,10 @@ module.exports = async(msg, client, from, store) => {
    const totaal = getBalance(sender, balance)
    const belec = await Rp(`${totaal}`)
    
+   const replyNtag = (teks) => {
+    client.sendMessage(from, { text: teks, mentions: parseMention(teks) }, { quoted: ftextx })
+    }
+
    //=======================================================//
                          /* { plugins } */ 
     //=======================================================//
@@ -179,6 +185,8 @@ module.exports = async(msg, client, from, store) => {
    }         
    
 const nay1 = { key: {fromMe: false, participant: "0@s.whatsapp.net", ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { contactMessage: { displayName: `${msg.sayingtime + msg.timoji}\n☏User: ${pushname}`, vcard: 'BEGIN:VCARD\n' + 'VERSION:3.0\n' + `item1.TEL;waid=${sender.split("@")[0]}:+${sender.split("@")[0]}\n` + 'item1.X-ABLabel:Ponsel\n' + 'END:VCARD' }}}  
+
+
     //=======================================================//               
                                          /* { eval } */
     //=======================================================//
@@ -268,12 +276,19 @@ client.sendMessage(from, { text: `*List menu YanzBotz-MD*
 • ${prefix}aiimg
 • ${prefix}ai
 • ${prefix}gptvoice
+• ${prefix}simi
 
 々 *TOOLS MENU*
 • ${prefix}remini
 • ${prefix}rangkum
 
+々 *TOOLS MENU*
+• ${prefix}yanz
+• ${prefix}ardi
+• ${prefix}janie
+
 々 *PREMIUM MENU*
+• ${prefix}tf
 • ${prefix}balance
 • ${prefix}buylimit
 • ${prefix}buyglimit
@@ -581,6 +596,93 @@ case prefix + ['group'] : {
           }   
       }      
       break
+      
+   case prefix + ['limit'] :
+            case prefix + ['balance'] :
+            case prefix + ['ceklimit']:
+            case prefix + ['cekbalance'] : {
+                var Ystatus = ownerNumber.includes(sender)
+                var isPrim = Ystatus ? true : _prem.checkPremiumUser(sender, premium)
+                var ggcount = isPrim ? gcounti.prem : gcounti.user
+                var limitMen = `${getLimit(sender, limitCount, limit)}`
+                let bel = { 
+                text: `\n*Name :* ${jos}${msg.pushName}${jos}\n*Limit :* ${jos}${isOwner ? 'Infinity' : isPremium ? 'Infinity' : getLimit(sender, limitCount, limit)}/${limitCount}${jos}\n*Limit Game :* ${jos}${cekGLimit(sender, ggcount, glimit)}/${ggcount}${jos}\n*Balance :* ${jos}${belec}${jos}\n\nKamu dapat membeli limit dengan ${prefix}buylimit dan ${prefix}buyglimit untuk membeli game limit`,
+                contextInfo: {
+                    externalAdReply: {
+                        title: `${day}, ${datee} ${month} ${year}`,
+                        body: `${msg.sayingtime + msg.timoji}`,
+                        thumbnail: fs.readFileSync('./storage/image/balance.jpg'),
+                        mediaUrl: "https://www.youtube.com/@YanzBotz",
+                        mentions:[sender],
+                        renderLargerThumbnail: true,
+                        showAdAttribution: false,
+                        mediaType: 1
+                    }
+                }
+            }
+            client.sendMessage(from, bel, {
+                quoted: msg
+            })
+            }
+            break    
+            
+case prefix + ['tf'] :
+case prefix + ['tfbalance'] :{
+	if (!isGroup) return msg.reply(`\n*「 ❗ 」WARNING*\n_Fitur Hanya bisa di gunakan di dalam group silahkan masuk_\n\nhttps://chat.whatsapp.com/KfQNICkv8CB7FgynDcbafX`)
+	if (isGame(sender, isOwner, gcount, glimit)) return msg.reply(`Limit game kamu Telah Habis, Beli limit game ketik #buyglimit`)
+           if (!isPremium) return msg.reply(`Kamu bukan user premium, kirim perintah *${prefix}buypremium* untuk membeli premium`)
+           if (args.length < 2) return msg.reply(`Kirim perintah *${command}* @tag nominal\nContoh : ${command} @0 1000`)
+                 if (mention.length == 0) return msg.reply(`Tag orang yang ingin di transfer balance`)
+                 if (!args[1]) return msg.reply(`Masukkan nominal nya!`)
+                 if (isNaN(args[1])) return msg.reply(`Nominal harus berupa angka!`)
+                 if (args[0].toLowerCase() === 'infinity') return reply(`Yahaha saya ndak bisa di tipu`)
+                 if (args[1].includes("-")) return msg.reply(`Jangan menggunakan -`)
+                 if (args[1].includes(",")) return msg.reply(`Jangan menggunakan ,`)
+                 if (args[1].includes(".")) return msg.reply(`Jangan menggunakan .`)
+                 if (args[1].includes("$")) return msg.reply(`Jangan menggunakan $`)
+                 var anu = getBalance(sender, balance)
+                 if (anu < args[1] || anu == 'undefined') return msg.reply(`「 *TRANSFER FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}🥷 DARI    : @${msg.sender.split("@")[0]}${jos}\n${jos}🥷 TUJUAN  : @${mention[0].split("@")[0]}${jos}\n${jos}🏷️ JUMLAH  : $${args[1]}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance Kamu Tidak Mencukupi Untuk Transfer_`)
+                 kurangBalance(sender, parseInt(args[1]), balance)
+                 addBalance(mention[0], parseInt(args[1]), balance)
+               replyNtag(`「 *TRANSFER BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}🥷 DARI    : @${msg.sender.split("@")[0]}${jos}\n${jos}🥷 TUJUAN  : @${mention[0].split("@")[0]}${jos}\n${jos}🏷️ JUMLAH  : $${args[1]}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n\n_Sukses mentransfer, jika ada bug silahkan lapor ke owner_`)
+            }
+            gameAdd(sender, glimit)
+       break    
+       
+     case prefix + ['buylimit']: {
+                if (args.length < 1) return msg.reply(`Kirim perintah *${prefix}buyglimit* jumlah game limit yang ingin dibeli\n\nHarga 1 game limit = $300 balance\nPajak $1 / $10`)
+                if (args[0].includes('@')) return msg.reply(`Jangan menggunakan @tag, Masukan angka untuk membeli limit`)
+                if (args[0].includes('-')) return msg.reply(`Jangan menggunakan -`)
+                if (isNaN(args[0])) return msg.reply(`Harus berupa angka`)
+                var ane = args[0] * 300
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🛍️ JUMLAH  : ${q}${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli limit_`)
+                kurangBalance(sender, ane, balance)
+                giveLimit(sender, args[0], limit)
+                replyNtag(`「 *BUY LIMIT BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🛍️ JUMLAH  : ${args[0]}${jos}\n${jos}📍 LIMIT   : ${getLimit(sender, limitCount, limit)}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n\n_Sukses membli limit, jika ada bug silahkan lapor ke owner_`)
+                }
+            break      
+            
+    case prefix + ['cekprem'] :
+            case prefix + ['cekpremium'] :
+                if (!isPremium) return msg.reply(`Kamu bukan user premium, kirim perintah *${prefix}buypremium* untuk membeli premium`)
+                var cekvip = ms(_prem.getPremiumExpired(sender, premium) - Date.now())
+                var premiumnya = `*Expire :* ${cekvip.days}d : ${cekvip.hours}h : ${cekvip.minutes}m : ${cekvip.seconds}s`
+                msg.reply(premiumnya)
+                break
+
+   case prefix+'buygamelimit':
+            case prefix+'buyglimit':{
+                 if (args.length < 1) return msg.reply(`Kirim perintah *${prefix}buyglimit* jumlah game limit yang ingin dibeli\n\nHarga 1 game limit = $300 balance\nPajak $1 / $10`)
+                if (args[0].includes('@')) return msg.reply(`Jangan menggunakan @tag, Masukan angka untuk membeli limit`)
+                if (args[0].includes('-')) return msg.reply(`Jangan menggunakan -`)
+                if (isNaN(args[0])) return msg.reply(`Harus berupa angka`)
+                var ane = args[0] * 300
+                if (getBalance(sender, balance) < ane) return msg.reply(`「 *TRANSAKSI FAILED* 」\n\n${jos}✨ STATUS  : Fail${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}☎️ NOMOR   : ${msg.sender.split("@")[0]}${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}🛍️ JUMLAH  : ${q}${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🪙 BALANCE : ${belec}${jos}\n\n_Balance kamu tidak mencukupi untuk membeli glimit_`)
+                kurangBalance(sender, ane, balance)
+                givegame(sender, args[0], glimit)
+                replyNtag(`「 *BUY GLIMIT BERHASIL* 」\n\n${jos}✨ STATUS  : Berhasil${jos}\n${jos}⌚ JAM     : ${moment().utcOffset('+0700').format('HH:mm')} WIB${jos}\n${jos}📆 TANGGAL : ${day}, ${datee} ${month} ${year}${jos}\n${jos}🥷 NAMA    : ${msg.pushName}${jos}\n${jos}🏷️ HARGA   : $${ane}${jos}\n${jos}🛍️ JUMLAH  : ${q}${jos}\n${jos}🕹️ GLIMIT  : ${cekGLimit(sender, gcount, glimit)}${jos}\n${jos}🪙 SISA    : ${belec}${jos}\n\n_Sukses membli glimit, jika ada bug silahkan lapor ke owner_`)
+                }
+                break            
 
 case prefix + ['instagram'] : case prefix + ['ig'] :
  if (!q)return msg.reply(`Berikan Link\nExample : ${command} link`)
@@ -598,16 +700,13 @@ case prefix + ['instagram'] : case prefix + ['ig'] :
  }).catch(() => msg.reply(`ERORR. Postingan tidak Tersedia`))
 break
 
-case prefix + ['tiktok'] :  {
-if (!q) return msg.reply(`Masukan Text\nExample ${prefix}tiktok https://vm.tiktok.com/ZS8CoY9UX/`)
-if (!q.includes('tiktok')) return msg.reply('Link Tidak Valid. Masukan Link Dengan Benar.')
-msg.reply('_Sedang Mendownload...')
-dl.savefrom(q).then ( data => {
-msg.reply(`*[ TIKTOK ]*\n\nTitle : ${data[0].meta.title}\nDurasi : ${data[0].meta.duration}\n\n_Wait A Minute._`)
-client.sendMessage(from, {video: {url: data[0].url[0].url}, caption: data[0].meta.title})
-         })
-     }
- break		    
+case prefix + ['tiktok'] : {
+if (!q) return msg.reply('Link nya mana')
+msg.reply('_Tunggu sebentar sedang proses_')
+ let wih = await fetchJson("https://api.yanzbotz.my.id/api/downloader/youtube?url=" + q)
+client.sendMessage(from, { video: { url: wih.result.medias[1].url }, caption: `• Title : ${wih.result.title}\n• Durasi : ${wih.result.duration}` }, { quoted: msg })
+}
+break 
 		    
 case prefix + 'alquran': {
 	if (!(args[0] || args[1])) return msg.reply(`contoh:\n${prefix + command} 1 2\n\nmaka hasilnya adalah surah Al-Fatihah ayat 2 beserta audionya, & ayatnya 1 saja`)
@@ -689,10 +788,43 @@ msg.reply("Error!\n\n"+e)
 }
 break
 
+case prefix + ['ardi'] : {
+        if (!q) return msg.reply('Teks nya mana?')
+         try {
+         let ardi = await getBuffer("https://api.yanzbotz.my.id/api/tts/ardi?query=" + q)
+          client.sendMessage(from, { audio: ardi, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
+          } catch (e) {
+          	msg.reply("Error!")
+           }
+        }
+        break  
+        
+case prefix + ['yanz'] : {
+        if (!q) return msg.reply('Teks nya mana?')
+         try {
+         let yanz = await getBuffer("https://api.yanzbotz.my.id/api/tts/yanz?query=" + q)
+          client.sendMessage(from, { audio: yanz, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
+          } catch (e) {
+          	msg.reply("Error!")
+           }
+        }
+        break   
+        
+case prefix + ['janie'] : {
+        if (!q) return msg.reply('Teks nya mana?')
+         try {
+         let jannie = await getBuffer("https://api.yanzbotz.my.id/api/tts/janie?query=" + q)
+          client.sendMessage(from, { audio: jannie, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
+          } catch (e) {
+          	msg.reply("Error!")
+           }
+        }
+        break               
+
 case prefix + ['ai'] : case prefix + ['openai'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let quest = await fetchJson("https://api.akane.my.id/api/ai/openai?query=" + q)
+         let quest = await fetchJson("https://api.yanzbotz.my.id/api/ai/openai?query=" + q)
           client.sendMessage(from, {text: quest.result.choices[0].text }, { quoted: msg });
           } catch (e) {
           	msg.reply("Eror")
@@ -703,7 +835,7 @@ case prefix + ['ai'] : case prefix + ['openai'] : {
 case prefix + ['rangkum'] : case prefix + ['ringkas'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let rangkum = await fetchJson("https://api.akane.my.id/api/ai/rangkum?query=" + q)
+         let rangkum = await fetchJson("https://api.yanzbotz.my.id/api/ai/rangkum?query=" + q)
           client.sendMessage(from, {text: rangkum.result }, { quoted: msg });
           } catch (e) {
           	msg.reply("Eror")
@@ -714,7 +846,7 @@ case prefix + ['rangkum'] : case prefix + ['ringkas'] : {
 case prefix + ['simi'] : case prefix + ['simisimi'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let SimSimi = await fetchJson("https://api.akane.my.id/api/ai/simi?query=woy+kontol" + q)
+         let SimSimi = await fetchJson("https://api.yanzbotz.my.id/api/ai/simi?query=woy+kontol" + q)
           client.sendMessage(from, {text: SimSimi.result }, { quoted: msg });
           } catch (e) {
           	msg.reply("Eror")
@@ -725,7 +857,7 @@ case prefix + ['simi'] : case prefix + ['simisimi'] : {
 case prefix + ['gptvoice'] : case prefix + ['aivn'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let tes = await getBuffer(`https://api.akane.my.id/api/ai/gptvoice?query=${q}`)
+         let tes = await getBuffer("https://api.akane.my.id/api/ai/gptvoice?query=" + q)
           client.sendMessage(from, { audio: tes, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
           } catch (e) {
           	msg.reply("Error!")
