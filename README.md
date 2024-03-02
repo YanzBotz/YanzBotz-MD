@@ -64,7 +64,7 @@ WhatsApp bot is still in the development stage, so there are a few bugs
 WhatsApp Connection (BETA, not working perfectly)
 
 Editing Number Owner & session name in [`config.js`](https://github.com/YanzBotz/YanzBotz-MD/blob/main/lib/validator/config.js)
-My Apikey [`api.yanzbotz`](https://1pt.co/api.yanzbotz)
+My Apikey [`api.yanzbotz`](https://api.yanzbotz.my.id)
 
 
 ## Thanks To
