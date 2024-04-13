@@ -1,0 +1,84 @@
+const isNumber = require("is-number");
+
+function rank(angka) {
+if(!isNumber(angka)) return new Error(`Harus berupa angka`)
+const levelRole = angka
+var role = "Warior V";
+      if (levelRole <= 3) {
+        role = "Warior IV";
+      } else if (levelRole <= 5) {
+        role = "Warior III";
+      } else if (levelRole <= 7) {
+        role = "Warior II";
+      } else if (levelRole <= 9) {
+        role = "Warior I";
+      } else if (levelRole <= 10) {
+        role = "Elite V";
+      } else if (levelRole <= 11) {
+        role = "Elite IV";
+      } else if (levelRole <= 12) {
+        role = "Elite III";
+      } else if (levelRole <= 13) {
+        role = "Elite II";
+      } else if (levelRole <= 13) {
+        role = "Elite I";
+      } else if (levelRole <= 16) {
+        role = "Master V";
+      } else if (levelRole <= 17) {
+        role = "Master IV";
+      } else if (levelRole <= 19) {
+        role = "Master III";
+      } else if (levelRole <= 20) {
+        role = "Master II";
+      } else if (levelRole <= 21) {
+        role = "Master I";
+      } else if (levelRole <= 22) {
+        role = "GrandMaster V";
+      } else if (levelRole <= 24) {
+        role = "GrandMaster IV";
+      } else if (levelRole <= 25) {
+        role = "GrandMaster III";
+      } else if (levelRole <= 26) {
+        role = "GrandMaster II";
+      } else if (levelRole <= 27) {
+        role = "GrandMaster I";
+      } else if (levelRole <= 28) {
+        role = "Epic V";
+      } else if (levelRole <= 29) {
+        role = "Epic IV";
+      } else if (levelRole <= 30) {
+        role = "Epic III";
+      } else if (levelRole <= 31) {
+        role = "Epic II";
+      } else if (levelRole <= 32) {
+        role = "Epic I";
+      } else if (levelRole <= 33) {
+        role = "Legend V";
+      } else if (levelRole <= 34) {
+        role = "Legend IV";
+      } else if (levelRole <= 35) {
+        role = "Legend III";
+      } else if (levelRole <= 37) {
+        role = "Legend II";
+      } else if (levelRole <= 39) {
+        role = "Legend I";
+      } else if (levelRole <= 41) {
+        role = "Myhthic V";
+      } else if (levelRole <= 42) {
+        role = "Myhthic IV";
+      } else if (levelRole <= 44) {
+        role = "Myhthic III";
+      } else if (levelRole <= 45) {
+        role = "Myhthic II";
+      } else if (levelRole <= 47) {
+        role = "Myhthic I";
+      } else if (levelRole <= 50) {
+        role = "Myhthic Glory";
+      }
+      re = {}
+      re.creator = 'RzkyFdlh'
+re.result = role
+return re
+}
+
+module.exports = { rank }

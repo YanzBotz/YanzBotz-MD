@@ -28,42 +28,39 @@
   const ms = modul['premium'];
 
 /*<--------------------( external function )--------------------->*/
-  const { instagram } = require('.' + getreq['scrapp'])
-  const _prem = require('.' + getreq['prem'])
-  const { isLimit, limitAdd, getLimit, giveLimit, addBalance, kurangBalance, getBalance, isGame, gameAdd, givegame, cekGLimit } = require('.' + getreq['limit'])
-  
-   //=======================================================//
-                       /* { database } */
-   //=======================================================//
-   
-   var balance = JSON.parse(fs.readFileSync('./database/balance.json'));
-   var limit = JSON.parse(fs.readFileSync('./database/limit.json'));
-   var glimit = JSON.parse(fs.readFileSync('./database/glimit.json'));
-   var premium = JSON.parse(fs.readFileSync('./database/premium.json'));
 
-   //=======================================================//
-                       /* { js } */
-   //=======================================================//
-   
-  const { color, bgcolor, ConsoleLog, biocolor } = require('.' + getreq['color'])
-  const { reSize, runtime, getBuffer, getRandom, pickRandom, fetchJson, isUrl, genMath, formatp} = require('.' + getreq['funct'])
-  const { imageToWebp, videoToWebp, writeExifImg, writeExifVid, writeExif, writeExifStc } = require('.' + getreq['exif'])
-  
-  //=======================================================//
-                       /* { media } */
-  //=======================================================//
+const { TelegraPh } = require('../lib/telegraph');
+const { instagram } = require('.' + getreq['scrapp']);
+const _prem = require('.' + getreq['prem']);
+const { isLimit, limitAdd, getLimit, giveLimit, addBalance, kurangBalance, getBalance, isGame, gameAdd, givegame, cekGLimit } = require('.' + getreq['limit']);
 
-  const thumb = fs.readFileSync(getreq['thumb'])
-  
-//=======================================================//
-                       /* { exports this function } */
-//=======================================================//
+/*<--------------------( Database )--------------------->*/
+
+var balance = JSON.parse(fs.readFileSync('./database/balance.json'));
+var limit = JSON.parse(fs.readFileSync('./database/limit.json'));
+var glimit = JSON.parse(fs.readFileSync('./database/glimit.json'));
+var premium = JSON.parse(fs.readFileSync('./database/premium.json'));
+var pendaftar = JSON.parse(fs.readFileSync('./database/user.json'));
+
+let akinator = [];
+let tebakbom = [];
+
+/*<--------------------( JS )--------------------->*/
+
+const { color, bgcolor, ConsoleLog, biocolor } = require('.' + getreq['color']);
+const { reSize, runtime, getBuffer, getRandom, pickRandom, fetchJson, isUrl, genMath, formatp } = require('.' + getreq['funct']);
+const { imageToWebp, videoToWebp, writeExifImg, writeExifVid, writeExif, writeExifStc } = require('.' + getreq['exif']);
+
+/*<--------------------( Media )--------------------->*/
+
+const thumb = fs.readFileSync(getreq['thumb']);
+
+/*<--------------------( Exports this function )--------------------->*/
 
 module.exports = async(msg, client, from, store) => {
     
-    //=======================================================//
-                          /* { detect } */  
-    //=======================================================//
+/*<--------------------( Detect )--------------------->*/    
+
    const isGrouP = msg.key.remoteJid.endsWith('@g.us')
    const sender = isGrouP ? (msg.key.participant ? msg.key.participant : msg.participant) : msg.key.remoteJid
    const pushname = msg.pushName || "No Name"
@@ -98,136 +95,235 @@ module.exports = async(msg, client, from, store) => {
    const gcounti = SETTING.gcount
    const gcount = isPremium ? gcounti.prem : gcounti.user
    const limitCount = SETTING.limitCount
+   const isUser = pendaftar.includes(sender)
    
-   //=======================================================//
-                    /* { Premium } */  
-    //=======================================================//
+/*<--------------------( Premium )--------------------->*/
 
-    _prem.expiredCheck(client, premium)
+_prem.expiredCheck(client, premium)
 
-   //=======================================================//
-                    /* { participant mentions } */   
-   //=======================================================//
+/*<--------------------( Participant mentions )--------------------->*/
 
-   const mentionByTag = msg.xtype == "extendedTextMessage" && msg.message.extendedTextMessage.contextInfo != null ? msg.message.extendedTextMessage.contextInfo.mentionedJid : []
-   const mentionByreply = msg.xtype == "extendedTextMessage" && msg.message.extendedTextMessage.contextInfo != null ? msg.message.extendedTextMessage.contextInfo.participant || "" : ""       
-   const mention = typeof(mentionByTag) == 'string' ? [mentionByTag] : mentionByTag
-          mention != undefined ? mention.push(mentionByreply) : []
-   const mentionUser = mention != undefined ? mention.filter(n => n) : false 
-  //=======================================================//
-                          /* { function } */   
-  //=======================================================//
+const mentionByTag = msg.xtype == "extendedTextMessage" && msg.message.extendedTextMessage.contextInfo != null ? msg.message.extendedTextMessage.contextInfo.mentionedJid : []
+const mentionByreply = msg.xtype == "extendedTextMessage" && msg.message.extendedTextMessage.contextInfo != null ? msg.message.extendedTextMessage.contextInfo.participant || "" : ""       
+const mention = typeof(mentionByTag) == 'string' ? [mentionByTag] : mentionByTag
+mention != undefined ? mention.push(mentionByreply) : []
+const mentionUser = mention != undefined ? mention.filter(n => n) : false 
 
-   const sleep = async (ms) => {
-       return new Promise(resolve => setTimeout(resolve, ms))
-   }
+/*<--------------------( Function )--------------------->*/
+
+const sleep = async (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
                    
-    const formatSize = sizeFormatter({
- 	std: "JEDEC",
-	decimalPlaces: "2",
-	keepTrailingZeroes: false,
-	render: (literal, symbol) => `${literal} ${symbol}B`,
-   });   
-   
-   
-   //=======================================================//      
-         /* { Function Hari } */
-   //=======================================================//
+const formatSize = sizeFormatter({
+    std: "JEDEC",
+    decimalPlaces: "2",
+    keepTrailingZeroes: false,
+    render: (literal, symbol) => `${literal} ${symbol}B`,
+});   
+
+/*<--------------------( Function  Hari )--------------------->*/
         
-   const today = moment().tz("Asia/Jakarta")
-   const day = today.format('dddd');
-   const datee = today.format('D');
-   const month = today.format('MMMM');
-   const year = today.format('YYYY');
-   const jos = '```'
-   
-   //=======================================================//      
-         /* { Function Rp } */
-   //=======================================================//
-   
-   function Rp(angka) {
-    return "Rp. " + (angka < 0 ? "" : "") + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "";
-   }
-   const totaal = getBalance(sender, balance)
-   const belec = await Rp(`${totaal}`)
-   
-   const replyNtag = (teks) => {
-    client.sendMessage(from, { text: teks, mentions: parseMention(teks) }, { quoted: ftextx })
+const today = moment().tz("Asia/Jakarta")
+const day = today.format('dddd');
+const datee = today.format('D');
+const month = today.format('MMMM');
+const year = today.format('YYYY');
+const jos = '```'
+const shp = "•"
+
+const parseResult = async (title, json, option) => {
+    if (Array.isArray(json)) {
+        var txt = `${title ? `_*${title}*_\n\n` : ''}${shp}\n`;
+        for (let i = 0; i < json.length; i++) {
+            if (option && option.delete) {
+                for (let j of option.delete) {
+                    delete json[i][j];
+                }
+            }
+            for (let j of Object.entries(json[i])) {
+                if (j[1] != undefined && j[1] != null && j[1] != "") {
+                    txt += `${shp} *${await kapitalisasiKata(
+                        j[0].replace(/_/, " ")
+                    )}* : ${j[1]}\n`;
+                }
+            }
+            if (i + 1 != json.length) txt += `\n${shp}\n`;
+        }
+    } else {
+        var txt = title ? `_*${title}*_\n\n` : '';
+        if (option && option.delete) {
+            for (let j of option.delete) {
+                delete json[j];
+            }
+        }
+        for (let i of Object.entries(json)) {
+            if (i[1] != undefined && i[1] != null && i[1] != "") {
+                txt += `${shp} *${await kapitalisasiKata(
+                    i[0].replace(/_/, " ")
+                )}* : ${i[1]}\n`;
+            }
+        }
     }
+    return txt.trim();
+};
 
-   //=======================================================//
-                         /* { plugins } */ 
-    //=======================================================//
+function Rp(angka) {
+    return "Rp. " + (angka < 0 ? "" : "") + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "";
+}
+
+const totaal = getBalance(sender, balance)
+const belec = await Rp(`${totaal}`)
+
+const replyNtag = (teks) => {
+    client.sendMessage(from, { text: teks, mentions: parseMention(teks) }, { quoted: msg })
+}
+
+const sendFile = async (from, url, caption, msg, men) => {
+    let mime = '';
+    let res = await axios.head(url)
+    mime = res.headers['content-type']
+    if (mime.split("/")[1] === "gif") {
+        return client.sendMessage(from, { video: await getBuffer(url), caption: caption, gifPlayback: true, mentions: men ? men : []}, {quoted: msg})
+    }
+    let type = mime.split("/")[0]+"Message"
+    if(mime.split("/")[0] === "image"){
+        return client.sendMessage(from, { image: await getBuffer(url), caption: caption, mentions: men ? men : []}, {quoted: nay1})
+    } else if(mime.split("/")[0] === "video"){
+        return client.sendMessage(from, { video: await getBuffer(url), caption: caption, mentions: men ? men : []}, {quoted: msg})
+    } else if(mime.split("/")[0] === "audio"){
+        return client.sendMessage(from, { audio: await getBuffer(url), caption: caption, mentions: men ? men : [], mimetype: 'audio/mpeg'}, {quoted: msg })
+    } else {
+        return client.sendMessage(from, { document: await getBuffer(url), mimetype: mime, caption: caption, mentions: men ? men : []}, {quoted: msg })
+    }
+}
+
+for (let name in plugins) {
+    let plugin = plugins[name]              
+    if (plugin.order && plugin.order.includes(orderPlugins)) {
+        let turn = plugin.order instanceof Array
+            ? plugin.order.includes(orderPlugins)
+            : plugin.order instanceof String
+                ? plugin.order == orderPlugins
+                : false
+        if (!turn) continue
+        if (plugin.owner && !isOwner){ 
+            msg.reply(keywords[0]['message'][2])
+            continue 
+        }
+        if (plugin.group && !isGroup){ 
+            msg.reply(keywords[0]['message'][1])
+            continue
+        }
+        if (plugin.groupAdmins && !isGroupAdmins){ 
+            msg.reply(keywords[0]['message'][3])
+            continue
+        }
+        if (plugin.botGroupAdmins && !isBotGroupAdmins){ 
+            msg.reply(keywords[0]['message'][4])
+            continue
+        }
+        await plugin.exec(msg, client, from, { q, args, order })
+    }
+}         
+
+function parseMention(text) {
+return [...text.matchAll(/@([0-9]{5,16}|0)/g)].map(v => v[1] + '@s.whatsapp.net')
+}
+
+const nay1 = { 
+    key: {
+        fromMe: false, 
+        participant: "0@s.whatsapp.net", 
+        ...(from ? { remoteJid: "status@broadcast" } : {})
+    }, 
+    message: { 
+        contactMessage: { 
+            displayName: `${msg.sayingtime + msg.timoji}\n☏User: ${pushname}`, 
+            vcard: 'BEGIN:VCARD\n' + 'VERSION:3.0\n' + `item1.TEL;waid=${sender.split("@")[0]}:+${sender.split("@")[0]}\n` + 'item1.X-ABLabel:Ponsel\n' + 'END:VCARD' 
+        } 
+    } 
+}
+
+/*<--------------------( EVAL )--------------------->*/    
     
-   for (let name in plugins) {
-                let plugin = plugins[name]              
-                if (plugin.order && plugin.order.includes(orderPlugins)) {
-                    let turn = plugin.order instanceof Array
-                        ? plugin.order.includes(orderPlugins)
-                        : plugin.order instanceof String
-                            ? plugin.order == orderPlugins
-                            : false
-                    if (!turn) continue
-                    if (plugin.owner && !isOwner){ msg.reply(keywords[0]['message'][2])
-                    continue 
-                    }
-                    if (plugin.group && !isGroup){ msg.reply(keywords[0]['message'][1])
-                    continue
-                    }
-                    if (plugin.groupAdmins && !isGroupAdmins){ msg.reply(keywords[0]['message'][3])
-                    continue
-                    }
-                    if (plugin.botGroupAdmins && !isBotGroupAdmins){ msg.reply(keywords[0]['message'][4])
-                    continue
-                    }
-          await plugin.exec(msg, client, from, { q, args, order })
-       }
-   }         
-   
-const nay1 = { key: {fromMe: false, participant: "0@s.whatsapp.net", ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { contactMessage: { displayName: `${msg.sayingtime + msg.timoji}\n☏User: ${pushname}`, vcard: 'BEGIN:VCARD\n' + 'VERSION:3.0\n' + `item1.TEL;waid=${sender.split("@")[0]}:+${sender.split("@")[0]}\n` + 'item1.X-ABLabel:Ponsel\n' + 'END:VCARD' }}}  
+if (chatmessage.startsWith('<')) {
+    if (!isOwner) return
+    if (!q) return msg.reply('Masukan Parameter Code!')
+    let kode = chatmessage.trim().split(/ +/)[0]
+    let teks
+    try {
+        teks = await eval(`(async () => { ${kode == ">>" ? "return" : ""} ${q}})()`)
+    } catch (e) {
+        teks = e
+    } finally {
+        await msg.reply(require('util').format(teks))
+    }
+}
 
+if (chatmessage.startsWith('=>')) {
+    if (!isOwner) return
+    function Return(sul) {
+        sat = JSON.stringify(sul, null, 2)
+        bang = util.format(sat)
+        if (sat == undefined) {
+            bang = util.format(sul)
+        }
+        return msg.reply(bang)
+    }
+    try {
+        msg.reply(util.format(eval(`(async () => { ${chatmessage.slice(3)} })()`)))
+    } catch (e) {
+        msg.reply(String(e))
+    }
+}
 
-    //=======================================================//               
-                                         /* { eval } */
-    //=======================================================//
-    
 if (chatmessage.startsWith('>')) {
-if (!isOwner) return 
-if (!q) return msg.reply('Masukan Parameter Code!')
-let kode = chatmessage.trim().split(/ +/)[0]
-let teks
-try {
-teks = await eval(`(async () => { ${kode == ">>" ? "return" : ""} ${q}})()`)
-} catch (e) {
-teks = e
-} finally {
-await msg.reply(require('util').format(teks))
-}
+    if (!isOwner) return
+    try {
+        let evaled = await eval(chatmessage.slice(2))
+        if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
+        await msg.reply(evaled)
+    } catch (err) {
+        msg.reply(String(err))
+    }
 }
 
-     if (chatmessage.startsWith('$')) {
-       if (!isOwner) return 
-        exec(chatmessage.slice(2), (err, stdout) => {
-       if(err) return client.sendMessage(from, {text :String(err)}, {quoted:msg})
-       if (stdout) return msg.reply(stdout)
-       })
-     } 
-     
-     
-     //=======================================================//
-                                   /* { function pplong } */
-     //=======================================================//
-     
-     const jimp_1 = require('jimp')
-      async function pepe(media) {
-	const jimp = await jimp_1.read(media)
-	const min = jimp.getWidth()
-	const max = jimp.getHeight()
-	const cropped = jimp.crop(0, 0, min, max)
-	return {
-		img: await cropped.scaleToFit(720, 720).getBufferAsync(jimp_1.MIME_JPEG),
-		preview: await cropped.normalize().getBufferAsync(jimp_1.MIME_JPEG)
-	}
+if (chatmessage.startsWith('$')) {
+    if (!isOwner) return
+    exec(chatmessage.slice(2), (err, stdout) => {
+        if(err) return client.sendMessage(from, {text :String(err)}, {quoted:msg})
+        if (stdout) return msg.reply(stdout)
+    })
+}
+
+function randomNomor(min, max = null) {
+    if (max !== null) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    } else {
+        return Math.floor(Math.random() * min) + 1
+    }
+}
+
+// Auto Registrasi
+if (msg.message && msg.text && !isUser && !isGroup) {
+    pendaftar.push(sender)
+    fs.writeFileSync('./database/user.json', JSON.stringify(pendaftar, null, 2))
+}
+
+// Function pepe
+const jimp_1 = require('jimp')
+async function pepe(media) {
+    const jimp = await jimp_1.read(media)
+    const min = jimp.getWidth()
+    const max = jimp.getHeight()
+    const cropped = jimp.crop(0, 0, min, max)
+    return {
+        img: await cropped.scaleToFit(720, 720).getBufferAsync(jimp_1.MIME_JPEG),
+        preview: await cropped.normalize().getBufferAsync(jimp_1.MIME_JPEG)
+    }
 }
 
    //=======================================================//
@@ -240,7 +336,197 @@ await msg.reply(require('util').format(teks))
      if (isCmd && isGroup) {
        console.log(keywords[0]['cmd'][0], keywords[0]['cmd'][1], time, color(`#${command} [${args.length}]`, 'gray'), 'from', color(msg.pushName), 'in', color(client.groupName, 'orange'))
      }
-   
+
+
+   //=======================================================//
+                             /* { Auto Downloader } */
+   //=======================================================//
+
+let tt = `https://vt.tiktok${chatmessage.slice(17)}`
+if (chatmessage.includes(tt)) {
+    var url = tt
+    try {
+        let yanz = [{
+            title: "MP3/MP4",
+            rows: [
+                {title: `[ 🎵 ] MP3 AND SLIDE`,rowId: `#tiktokmp3 ${url}`, description: `\nPilih Tiktok MP3 untuk audio`},
+                {title: `[ 🎵 ] MP4 AND SLIDE`,rowId: `#tiktok ${url}`, description: `\nPilih Tiktok MP4 untuk video`}
+            ]
+        }]
+        client.sendListMsg(sender, `MP3/MP4`, `
+Yanz-GPT`, `TYPE AUDIO/VIDEO TO SEND`, `Click Here`, yanz, msg)
+    } catch (e) {
+        msg.reply("Error, tidak support slide!!")
+    }
+}
+
+let tt2 = `https://www.tiktok.com/${chatmessage.slice(23)}`
+if (chatmessage.includes(tt2)) {
+    var url = tt2
+    try {
+        let yanz = [{
+            title: "MP3/MP4",
+            rows: [
+                {title: `[ 🎵 ] MP3 AND SLIDE`,rowId: `#tiktokmp3 ${url}`, description: `\nPilih Tiktok MP3 untuk audio`},
+                {title: `[ 🎵 ] MP4 AND SLIDE`,rowId: `#tiktok ${url}`, description: `\nPilih Tiktok MP4 untuk video`}
+            ]
+        }]
+        client.sendListMsg(sender, `MP3/MP4`, `
+Yanz-GPT`, `TYPE AUDIO/VIDEO TO SEND`, `Click Here`, yanz, msg)
+    } catch (e) {
+        msg.reply("Error, tidak support slide!!")
+    }
+}
+
+let tt3 = `https://vm.tiktok${chatmessage.slice(17)}`
+if (chatmessage.includes(tt3)) {
+    var url = tt3
+    try {
+        let yanz = [{
+            title: "MP3/MP4",
+            rows: [
+                {title: `[ 🎵 ] MP3 AND SLIDE`,rowId: `#tiktokmp3 ${url}`, description: `\nPilih Tiktok MP3 untuk audio`},
+                {title: `[ 🎵 ] MP4 AND SLIDE`,rowId: `#tiktok ${url}`, description: `\nPilih Tiktok MP4 untuk video`}
+            ]
+        }]
+        client.sendListMsg(sender, `MP3/MP4`, `
+Yanz-GPT`, `TYPE AUDIO/VIDEO TO SEND`, `Click Here`, yanz, msg)
+    } catch (e) {
+        msg.reply("Error, tidak support slide!!")
+    }
+}
+
+let igdl = `https://www.instagram.com/${chatmessage.slice(26)}`
+if (chatmessage.includes(igdl)) {
+    var url = igdl
+    msg.reply("_*Sedang mendownload...*_")	
+    msg.reply(`*[ INSTAGRAM ]*\n\n_Wait A Minute._`)
+    instagram(url).then( data => {
+        for ( let i of data ) {
+            if (i.type === "video") {
+                client.sendMessage(from, {video: {url: i.url}}, {quoted: msg})
+            } else if (i.type === "image") {
+                client.sendMessage(sender, { caption: `_Jika Bot berguna, jangan lupa support supaya Bot - Auto Downloader terus aktif https://saweria.co/YanzBotzX_`, image: { url: i.url }})
+                limitAdd(sender, limit)
+            }
+        }
+    }).catch(() => msg.reply(`Eror mas. P in owner coba`))
+}
+
+let yutu = `https://youtu${chatmessage.slice(13)}`
+if (chatmessage.includes(yutu)) {
+    var url = yutu
+    let yanz = [{
+        title: "MP3/MP4",
+        rows: [
+            {title: `[ 🎵 ] MP3`,rowId: `#ytmp3 ${url}`, description: `\nPilih YouTube MP3 untuk audio`},
+            {title: `[ 🎵 ] MP4`,rowId: `#ytmp4 ${url}`, description: `\nPilih YouTube MP4 untuk video`}
+        ]
+    }]
+    client.sendListMsg(sender, `MP3/MP4`, `
+Yanz-GPT`, `TYPE AUDIO/VIDEO TO SEND`, `Click Here`, yanz, msg)
+}
+
+let cp = `https://www.capcut.com/${chatmessage.slice(23)}`
+if (chatmessage.includes(cp)) {
+    var url = cp
+    try {
+        msg.reply("_*Sedang mendownload...*_")	 
+        const data = await fetchJson("https://api.yanzbotz.my.id/api/downloader/capcut?url=" + url + "&apiKey=" + global.apikey)
+        msg.reply(`*[ CAPCUT ]*\n\n*Title :* ${data.result.title}\n*View:* ${data.result.view}\n*Deksripsi :* ${data.result.description}\n*Penonton:* ${data.result.usage}\n\n_Wait A Minute._`)
+        client.sendMessage(from, {video: {url: data.result.originalVideoUrl}, caption: `\n*Title :* ${data.result.title}\n*View:* ${data.result.view}\n*Deksripsi :* ${data.result.description}\n*Penonton:* ${data.result.usage}`}, { quoted : msg })
+    } catch (e) {
+        msg.reply("Error")
+    }
+} 
+
+let fbdl = `https://fb.watch${chatmessage.slice(16)}`
+if (chatmessage.includes(fbdl)) {
+    var url = fbdl
+    try {
+        const TodTes = await fetchJson("https://api.yanzbotz.my.id/api/downloader/facebook?url=" + url + "&apiKey=" + global.apikey)
+        var cap = `
+        📌 *Caption:* ${TodTes.caption}
+        `
+        client.sendMessage(from, { video: { url : TodTes.result }, mimetype: 'video/mp4', caption: cap },{quoted: msg})
+    } catch (e) {
+        msg.reply("Error")
+    }
+}
+let fb2 = `https://www.facebook.com${chatmessage.slice(24)}`
+if (chatmessage.includes(fb2)) {
+    var url = fb2
+    try {
+        msg.reply("_*Sedang mendownload...*_")	   
+        const TodTes = await fetchJson("https://api.yanzbotz.my.id/api/downloader/facebook?url=" + url + "&apiKey=" + global.apikey)
+        var cap = `
+        📌 *Caption:* ${TodTes.result.desc}
+        `
+        client.sendMessage(from, { video: { url : TodTes.result.video_sd }, mimetype: 'video/mp4', caption: cap },{quoted: msg})
+    } catch (e) {
+        msg.reply("Error")
+    }
+}
+
+let Thred = `https://www.threads.net/${chatmessage.slice(24)}`
+if (chatmessage.includes(Thred)) {
+    var url = Thred
+    msg.reply('_Sedang Mendownload...')
+    try {
+        fetchJson("https://api.yanzbotz.my.id/api/downloader/threads?url=" + url + "&apiKey=" + global.apikey)
+            .then(async yanzb => {
+                let hasil = yanzb.result
+                let video = hasil["video_versions"]
+                let image = hasil["image_versions2"]
+                if (video.length == 0) {
+                    let img = {
+                        image: {
+                            url: image[0].url
+                        },
+                        caption: 'Result',
+                        contextInfo: {
+                            externalAdReply: {
+                                title: time,
+                                body: `${msg.sayingtime + msg.timoji + ' ' + msg.pushName}`,
+                                thumbnail: thumb,
+                                sourceUrl: "https://instagram.com/yanzbotz_",
+                                mediaUrl: "https://instagram.com/yanzbotz_",
+                                showAdAttribution: true,
+                                mediaType: 1
+                            }
+                        }
+                    }
+                    await client.sendMessage(from, img, {
+                        quoted: msg
+                    })
+                } else {
+                    let vid = {
+                        video: {
+                            url: video[0].url
+                        },
+                        caption: 'Result',
+                        contextInfo: {
+                            externalAdReply: {
+                                title: time,
+                                body: `${msg.sayingtime + msg.timoji + ' ' + msg.pushName}`,
+                                thumbnail: thumb,
+                                sourceUrl: "https://instagram.com/yanzbotz_",
+                                mediaUrl: "https://instagram.com/yanzbotz_",
+                                showAdAttribution: true,
+                                mediaType: 1
+                            }
+                        }
+                    }
+                    await client.sendMessage(from, vid, {
+                        quoted: msg
+                    })
+                }
+            })
+    } catch (e) {
+        msg.reply(`Type error`)
+    }
+}
+
    //=======================================================//
                          /* { cases } */   
    //=======================================================//
@@ -694,19 +980,88 @@ case prefix + ['instagram'] : case prefix + ['ig'] :
  if (i.type === "video") {
  client.sendMessage(from, {video: {url: i.url}}, {quoted: msg })
  } else if (i.type === "image") {
- client.sendMessage(from, { caption: `Sukses, Follow Instagram : @arsrfii`, image: { url: i.url }}, {quoted: msg })
+ client.sendMessage(from, { caption: `Sukses, Follow Instagram : @yanzbotz_`, image: { url: i.url }}, {quoted: msg })
             }
      }
  }).catch(() => msg.reply(`ERORR. Postingan tidak Tersedia`))
 break
 
-case prefix + ['tiktok'] : {
-if (!q) return msg.reply('Link nya mana')
-msg.reply('_Tunggu sebentar sedang proses_')
- let wih = await fetchJson("https://api.yanzbotz.my.id/api/downloader/youtube?url=" + q)
-client.sendMessage(from, { video: { url: wih.result.medias[1].url }, caption: `• Title : ${wih.result.title}\n• Durasi : ${wih.result.duration}` }, { quoted: msg })
+case prefix + ['krakenfiles']: case prefix + ['kraken']: case prefix + ['krakenfile'] : {
+if (!q) return msg.reply('linknya mana')
+msg.reply('_Sedang Mendownload..._')
+const res = await fetchJson("https://api.yanzbotz.my.id/api/downloader/krakenfiles?url=" + q + "&apiKey=" + global.apikey)
+msg.reply(`_*Downloading file, don't spam . . .*_\n\n*• Title :* ${res.result.title}\n*• Tanggal upload :* ${res.result.uploaddate}\n*• Tanggal Download :* ${res.result.lastdownloaddate}\n*• fileSize :* ${res.result.filesize}\n*• Type File :* ${res.result.type}\n*• Views :* ${res.result.views}\n*• Download :* ${res.result.downloads}`)	
+client.sendMessage(from, { document : { url : res.result.url}, fileName : res.result.title, mimetype: 'video/mp4' }, { quoted : msg})
 }
-break 
+break
+
+case prefix + ['terabox']:
+case prefix + ['tera']:
+case prefix + ['box']: {
+    if (!q) return msg.reply('Linknya mana');
+    msg.reply('_Sedang Mendownload..._');
+    const fileData = await fetchJson("https://terabox-test.vercel.app/api?data=" + q)
+    msg.reply(`_*Downloading file, don't spam . . .*_\n\n*• Title :* ${fileData.file_name}\n*• Ukuran :* ${fileData.size}\n*• Ukuran dalam Bytes :* ${fileData.sizebytes}\n*• Thumbnail :* ${fileData.thumb}`);	
+    client.sendMessage(from, { document: { url: fileData.direct_link }, fileName: fileData.file_name, mimetype: 'video/mp4' }, { quoted: msg });
+}
+break;
+
+case prefix + ['tiktok']:
+case prefix + ['tt']:
+case prefix + ['tiktokdl']:
+case prefix + ['tiktokslide']:
+case prefix + ['tiktoknowm']:
+case prefix + ['tiktokvid']:
+case prefix + ['ttdl']: {
+    try {
+        if (!q) return msg.reply('Link nya mana');
+        let yaaa = await fetchJson("https://api.yanzbotz.my.id/api/downloader/aiodl?url=" + q + "&apiKey=" + global.apikey);
+        let data = yaaa.result;
+        let type = yaaa.result.medias[0].type;
+        let text = '[ TIKTOK DOWNLOAD ]' + '\n\n';
+        text += `type: ${type}` + '\n';
+        text += `title: ${data.title}` + '\n\n';
+        let proces = await client.sendMessage(from, {
+            text: 'Media type : ' + type
+        }, {
+            quoted: msg
+        });
+        if (type === 'image') {
+            let ima = yaaa.result.medias;
+
+            function extractImageUrls(data) {
+                const imageUrls = data.filter(item => item.type === 'image').map(item => item.url);
+                return imageUrls;
+            }
+
+            const images = await extractImageUrls(ima);
+            for (let N = 0; N < images.length; N++) {
+                await client.sendMessage(from, {
+                    image: {
+                        url: images[N]
+                    },
+                    caption: 'images: ' + (N + 1)
+                }, {
+                    quoted: msg
+                });
+            } 
+        }
+        if (type == 'video') {
+            let video = data.medias[1];
+            await client.sendMessage(from, {
+                video: {
+                    url: video.url
+                },
+                caption: text
+            }, {
+                quoted: msg
+            });
+        }
+    } catch (error) {
+        msg.reply("Terjadi kesalahan");
+    }
+}
+break;
 		    
 case prefix + 'alquran': {
 	if (!(args[0] || args[1])) return msg.reply(`contoh:\n${prefix + command} 1 2\n\nmaka hasilnya adalah surah Al-Fatihah ayat 2 beserta audionya, & ayatnya 1 saja`)
@@ -788,10 +1143,173 @@ msg.reply("Error!\n\n"+e)
 }
 break
 
+case prefix + ["info"] : {     
+            let os = require("os")
+            let v8 = require("v8")
+            let { performance } = require("perf_hooks")
+            let eold = performance.now()
+
+            const used = process.memoryUsage()
+            const cpus = os.cpus().map(cpu => {
+               cpu.total = Object.keys(cpu.times).reduce((last, type) => last + cpu.times[type], 0)
+               return cpu
+            })
+            const cpu = cpus.reduce((last, cpu, _, { length }) => {
+               last.total += cpu.total
+               last.speed += cpu.speed / length
+               last.times.user += cpu.times.user
+               last.times.nice += cpu.times.nice
+               last.times.sys += cpu.times.sys
+               last.times.idle += cpu.times.idle
+               last.times.irq += cpu.times.irq
+               return last
+            }, {
+               speed: 0,
+               total: 0,
+               times: {
+                  user: 0,
+                  nice: 0,
+                  sys: 0,
+                  idle: 0,
+                  irq: 0
+               }
+            })
+            let heapStat = v8.getHeapStatistics()
+            let neow = performance.now()
+
+            let teks = `
+*Ping :* *_${Number(neow - eold).toFixed(2)} milisecond(s)_*
+
+💼 » *_Info Server_*
+*- Hostname :* ${(os.hostname() || client.user?.name)}
+*- Platform :* ${os.platform()}
+*- OS :* ${os.version()} / ${os.release()}
+*- Arch :* ${os.arch()}
+*- RAM :* ${formatSize(os.totalmem() - os.freemem(), false)} / ${formatSize(os.totalmem(), false)}
+
+*_Runtime OS_*
+${runtime(os.uptime())}
+
+*_Runtime Bot_*
+${runtime(process.uptime())}
+
+*_NodeJS Memory Usage_*
+${Object.keys(used).map((key, _, arr) => `*- ${key.padEnd(Math.max(...arr.map(v => v.length)), ' ')} :* ${formatSize(used[key])}`).join('\n')}
+*- Heap Executable :* ${formatSize(heapStat?.total_heap_size_executable)}
+*- Physical Size :* ${formatSize(heapStat?.total_physical_size)}
+*- Available Size :* ${formatSize(heapStat?.total_available_size)}
+*- Heap Limit :* ${formatSize(heapStat?.heap_size_limit)}
+*- Malloced Memory :* ${formatSize(heapStat?.malloced_memory)}
+*- Peak Malloced Memory :* ${formatSize(heapStat?.peak_malloced_memory)}
+*- Does Zap Garbage :* ${formatSize(heapStat?.does_zap_garbage)}
+*- Native Contexts :* ${formatSize(heapStat?.number_of_native_contexts)}
+*- Detached Contexts :* ${formatSize(heapStat?.number_of_detached_contexts)}
+*- Total Global Handles :* ${formatSize(heapStat?.total_global_handles_size)}
+*- Used Global Handles :* ${formatSize(heapStat?.used_global_handles_size)}
+${cpus[0] ? `
+
+*_Total CPU Usage_*
+${cpus[0].model.trim()} (${cpu.speed} MHZ)\n${Object.keys(cpu.times).map(type => `*- ${(type + '*').padEnd(6)}: ${(100 * cpu.times[type] / cpu.total).toFixed(2)}%`).join('\n')}
+
+*_CPU Core(s) Usage (${cpus.length} Core CPU)_*
+${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Object.keys(cpu.times).map(type => `*- ${(type + '*').padEnd(6)}: ${(100 * cpu.times[type] / cpu.total).toFixed(2)}%`).join('\n')}`).join('\n\n')}` : ''}
+`.trim()
+            await msg.reply(teks)
+         }
+            break     
+     
+case prefix + ["contact"] : case prefix + ["kontak"] : {
+    if (!isOwner) return msg.reply('Hanya owner')
+            if (!q) return msg.reply("Mau nyari siapa?")
+            let contacts = Object.values(store.contacts).filter(v => [v.name, v.verifiedName, v.notify].some(name => name && name.toLowerCase().includes(q.toLowerCase())))
+            if (contacts.length === 0) return msg.reply("Kontak gaada")
+            const number = await contacts.map(v => v && v.id)
+            const kon = number.map(number => number.replace(/@s.whatsapp.net/g, ''));
+            await client.sendContact(from, kon, msg)
+         }
+            break     
+     
+case prefix + ["getsw"]: 
+case prefix + ["sw"]: {
+    try {
+        if (!isOwner) return msg.reply('Hanya owner')
+        if (!q) return msg.reply('mau ambil sw siapa');
+        if (store.messages["status@broadcast"].array.length === 0) return msg.reply("Gaada 1 status pun");
+        
+        let contacts = Object.values(store.contacts);
+        let [who, value] = q.split(/[,|\-+&]/);
+        value = value?.replace(/\D+/g, "");
+
+        let sender;
+        if (sender) sender = mention[0];
+        else if (q) sender = contacts.find(v => [v.name, v.verifiedName, v.notify].some(name => name && name.toLowerCase().includes(who.toLowerCase())))?.id;
+
+        let stories = store.messages["status@broadcast"].array;
+        let story = stories.filter(v => v.key && v.key.participant === sender || v.participant === sender).filter(v => v.message && v.message.protocolMessage?.type !== 0);
+        
+        if (story.length === 0) throw new Error("Gaada sw nya");
+        
+        if (value) {
+            if (story.length < value) throw new Error("Jumlahnya ga sampe segitu");
+            await client.copyMSGForward(from, story[value - 1], true);
+        } else {
+            for (let mg of story) {
+                await sleep(1500);
+                await client.copyMSGForward(from, mg, true);
+            }
+        }
+    } catch (error) {
+        msg.reply("Terjadi kesalahan: " + error.message);
+    }
+}
+break;
+
+case prefix + ["listsw"] : {
+    try {
+      if (!isOwner) return msg.reply('Hanya owner')
+       if (!store.messages["status@broadcast"].array.length === 0) return msg.reply("Gaada 1 status pun")
+            let stories = store.messages["status@broadcast"].array
+            let story = stories.filter(v => v.message && v.message.protocolMessage?.type !== 0)
+            if (story.length === 0) return msg.reply("Status gaada")
+            const result = {}
+            story.forEach(obj => {
+               let participant = obj.key.participant || obj.participant
+               participant = jidNormalizedUser(participant === "status_me" ? client.user.id : participant)
+               if (!result[participant]) {
+                  result[participant] = []
+               }
+               result[participant].push(obj)
+            })
+            let type = (mType) => getContentType(mType) === "extendedTextMessage" ? "text" : getContentType(mType)
+            let text = ""
+            for (let id of Object.keys(result)) {
+               text += `*- ${await client.getName(id)}*\n`
+               text += `${result[id].map((v, i) => `${i + 1}. ${type(v.message)}`).join("\n")}\n\n`
+            }
+            await client.sendMessage(from, { text: text.replace(/Message/g, "").trim()}, { mentions: Object.keys(result) })
+         } catch (error) {
+        msg.reply("Terjadi kesalahan: " + error);
+    }
+}
+break;
+
+case prefix + 'listcontact':
+case prefix + 'listkon':
+case prefix + 'listkontak': {
+ if (!isOwner) return msg.reply('Hanya owner')
+  const contacts = Object.values(store.contacts);
+  let text = "";
+  for (let contact of contacts) {
+    text += `*- ${contact.name}*\n`;
+  }
+  await client.sendMessage(from, { text: text.trim() }, { mentions: contacts.map(contact => contact.id) });
+  }
+  break;
+
 case prefix + ['ardi'] : {
         if (!q) return msg.reply('Teks nya mana?')
          try {
-         let ardi = await getBuffer("https://api.yanzbotz.my.id/api/tts/ardi?query=" + q)
+         let ardi = await getBuffer("https://api.yanzbotz.my.id/api/tts/ardi?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, { audio: ardi, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
           } catch (e) {
           	msg.reply("Error!")
@@ -802,7 +1320,7 @@ case prefix + ['ardi'] : {
 case prefix + ['yanz'] : {
         if (!q) return msg.reply('Teks nya mana?')
          try {
-         let yanz = await getBuffer("https://api.yanzbotz.my.id/api/tts/yanz?query=" + q)
+         let yanz = await getBuffer("https://api.yanzbotz.my.id/api/tts/yanz?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, { audio: yanz, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
           } catch (e) {
           	msg.reply("Error!")
@@ -813,7 +1331,7 @@ case prefix + ['yanz'] : {
 case prefix + ['janie'] : {
         if (!q) return msg.reply('Teks nya mana?')
          try {
-         let jannie = await getBuffer("https://api.yanzbotz.my.id/api/tts/janie?query=" + q)
+         let jannie = await getBuffer("https://api.yanzbotz.my.id/api/tts/janie?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, { audio: jannie, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
           } catch (e) {
           	msg.reply("Error!")
@@ -824,7 +1342,7 @@ case prefix + ['janie'] : {
 case prefix + ['ai'] : case prefix + ['openai'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let quest = await fetchJson("https://api.yanzbotz.my.id/api/ai/openai?query=" + q)
+         let quest = await fetchJson("https://api.yanzbotz.my.id/api/ai/openai?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, {text: quest.result.choices[0].text }, { quoted: msg });
           } catch (e) {
           	msg.reply("Eror")
@@ -835,7 +1353,7 @@ case prefix + ['ai'] : case prefix + ['openai'] : {
 case prefix + ['rangkum'] : case prefix + ['ringkas'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let rangkum = await fetchJson("https://api.yanzbotz.my.id/api/ai/rangkum?query=" + q)
+         let rangkum = await fetchJson("https://api.yanzbotz.my.id/api/ai/rangkum?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, {text: rangkum.result }, { quoted: msg });
           } catch (e) {
           	msg.reply("Eror")
@@ -846,7 +1364,7 @@ case prefix + ['rangkum'] : case prefix + ['ringkas'] : {
 case prefix + ['simi'] : case prefix + ['simisimi'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let SimSimi = await fetchJson("https://api.yanzbotz.my.id/api/ai/simi?query=woy+kontol" + q)
+         let SimSimi = await fetchJson("https://api.yanzbotz.my.id/api/ai/simi?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, {text: SimSimi.result }, { quoted: msg });
           } catch (e) {
           	msg.reply("Eror")
@@ -857,7 +1375,7 @@ case prefix + ['simi'] : case prefix + ['simisimi'] : {
 case prefix + ['gptvoice'] : case prefix + ['aivn'] : {
         if (!q) return msg.reply('mau tanya apa')
          try {
-         let tes = await getBuffer("https://api.akane.my.id/api/ai/gptvoice?query=" + q)
+         let tes = await getBuffer("https://api.akane.my.id/api/ai/gptvoice?query=" + q + "&apiKey=" + global.apikey)
           client.sendMessage(from, { audio: tes, mimetype: 'audio/mp4', ptt: true}, {quoted: msg})
           } catch (e) {
           	msg.reply("Error!")

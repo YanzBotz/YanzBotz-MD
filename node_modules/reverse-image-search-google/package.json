@@ -1,0 +1,34 @@
+{
+  "name": "reverse-image-search-google",
+  "version": "1.0.3",
+  "description": "A free solution for reverse image search using google",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "lib": "lib"
+  },
+  "dependencies": {
+    "axios": "^0.20.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jildertvenema/reverse-image-search.git"
+  },
+  "keywords": [
+    "reverse",
+    "image",
+    "search",
+    "google",
+    "node"
+  ],
+  "author": "Jildert",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jildertvenema/reverse-image-search/issues"
+  },
+  "homepage": "https://github.com/jildertvenema/reverse-image-search#readme"
+}

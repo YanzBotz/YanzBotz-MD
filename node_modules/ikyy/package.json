@@ -1,0 +1,49 @@
+{
+  "name": "ikyy",
+  "version": "5.0.7",
+  "description": "Simple module random",
+  "depecrated": false,
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "api",
+    "rzkyfdlh-api",
+    "scraper",
+    "tools"
+  ],
+  "author": "RzkyFdlh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://sl.rzkyfdlh.tech/code"
+  },
+  "bugs": {
+    "url": "https://sl.rzkyfdlh.tech/code"
+  },
+  "homepage": "https://rzkyfdlh.tech",
+  "dependencies": {
+    "@vitalets/google-translate-api": "^8.0.0",
+    "acrcloud": "^1.4.0",
+    "axios": "^0.25.0",
+    "cheerio": "^1.0.0-rc.10",
+    "jimp": "^0.16.1",
+    "file-type": "^16.5.3",
+    "form-data": "^4.0.0",
+    "fs": "^0.0.1-security",
+    "is-number": "^7.0.0",
+    "levenshtein-edit-distance": "^2.0.0",
+    "needle": "^3.0.0",
+    "node-fetch": "^2.6.1",
+    "prettier": "^2.6.2",
+    "request": "^2.88.2",
+    "yt-search": "^2.10.3",
+    "ytdl-core": "^4.10.0"
+  },
+  "devDependencies": {}
+}

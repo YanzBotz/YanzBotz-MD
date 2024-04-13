@@ -26,15 +26,6 @@ cd YanzBotz-MD
 npm install
 ```
 
-## HOW TO CONNECT TO MONGODB WHEN RUN IN HEROKU
-
-* Create account and database in mongodb atlas [`watch here`](https://youtu.be/rPqRyYJmx2g)
-* when you already have a database, you just need to take mongourl
-* Put mongourl in Procfile `web: node . --db 'mongourl'`
-* Example `web: node . -- db 'Your Mongo URI'`
-
-
-
 ## FOR TERMUX/UBUNTU/SSH USER
 
 ```bash
@@ -45,6 +36,12 @@ apt install ffmpeg -y
 git clone https://github.com/YanzBotz/YanzBotz-MD
 cd YanzBotz-MD
 npm install
+```
+## PAIRING-CODE
+
+```bash
+cd YanzBotz-MD
+node index.js --pairing-code
 ```
 
 ## RECOMMENDED INSTALL ON TERMUX
@@ -64,7 +61,7 @@ WhatsApp bot is still in the development stage, so there are a few bugs
 WhatsApp Connection (BETA, not working perfectly)
 
 Editing Number Owner & session name in [`config.js`](https://github.com/YanzBotz/YanzBotz-MD/blob/main/lib/validator/config.js)
-My Apikey [`api.yanzbotz`](https://api.yanzbotz.my.id)
+My Apikey [`YanzBotz-APIs`](https://api.yanzbotz.my.id)
 
 
 ## Thanks To
