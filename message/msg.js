@@ -11,8 +11,8 @@
   const https = modul['https'];
   const axios = modul['axios'];
   const ytsr = modul['ytsr'];
-  const { spawn, exec } = modul['child'];
-  const { downloadContentFromMessage, WA_DEFAULT_EPHEMERAL, getLastMessageInChat, MessageType, generateWAMessageFromContent, proto } = modul['baileys'];
+  const { spawn, exec, execSync } = modul['child'];
+  const { downloadContentFromMessage, WA_DEFAULT_EPHEMERAL, getLastMessageInChat, MessageType, generateWAMessageFromContent, prepareWAMessageMedia, proto } = modul['baileys'];
   const moment = modul['time'];
   const time = moment.tz('Asia/Jakarta').format('DD/MM HH:mm:ss')
   const qrcode = modul['qrcode'];
@@ -243,6 +243,91 @@ const nay1 = {
             vcard: 'BEGIN:VCARD\n' + 'VERSION:3.0\n' + `item1.TEL;waid=${sender.split("@")[0]}:+${sender.split("@")[0]}\n` + 'item1.X-ABLabel:Ponsel\n' + 'END:VCARD' 
         } 
     } 
+}
+
+/*<--------------------( Buttons )--------------------->*/    
+
+client.sendListWithImage = async (jid, text, list, footer, image, quoted, options = {}) => {
+                let ListWMsg = generateWAMessageFromContent(jid, {
+                    viewOnceMessage: {
+                        message: {
+                            interactiveMessage: {
+                                contextInfo: {
+                                    mentionedJid: [msg.sender],
+                                    isForwarded: true,
+                                    forwardedNewsletterMessageInfo: {
+                                        newsletterJid: global.saluranId,
+                                        newsletterName: 'Powered By YanzBotz - MD',
+                                        serverMessageId: -1
+                                    },
+                                    businessMessageForwardInfo: {
+                                        businessOwnerJid: global.ownerNumber + "@s.whatsapp.net"
+                                    },
+                                    externalAdReply: {
+                                        title: 'YanzBotz - MD',
+                                        thumbnailUrl: image,
+                                        sourceUrl: '',
+                                        mediaType: 1,
+                                        renderLargerThumbnail: true
+                                    }
+                                },
+                                body: {
+                                    text: text
+                                },
+                                footer: {
+                                    text: footer
+                                },
+                                header: {
+                                    title: "Powered By YanzBotz - MD",
+                                    subtitle: "YanzBotz - MD",
+                                    hasMediaAttachment: true, 
+                                    ...(await prepareWAMessageMedia({ image: { url: image } }, { upload: client.waUploadToServer }))
+                                },
+                                nativeFlowMessage: {
+                                    buttons: [
+                                        {
+                                            "name": "single_select",
+                                            "buttonParamsJson": JSON.stringify(list)
+                                        }
+                                    ],
+                                }
+                            }
+                        }
+                    }
+                }, {})
+
+                await client.relayMessage(ListWMsg.key.remoteJid, ListWMsg.message, {
+                    messageId: ListWMsg.key.id,
+                    quoted: quoted,
+                })
+            }
+
+client.sendListButton = async (jid, text, list, footer, quoted, options = {}) => {
+	let ListMsg = generateWAMessageFromContent(jid, {
+       viewOnceMessage: {
+          message: {
+              interactiveMessage: {
+                  body: {
+                    text: text
+                 },
+                  footer: {
+                    text: footer
+                 },
+              nativeFlowMessage: {
+                  buttons: [{
+                    name: "single_select",
+                    buttonParamsJson: JSON.stringify(list)
+             }],
+          }
+       }
+    }
+  }
+}, {})
+
+await client.relayMessage(ListMsg.key.remoteJid, ListMsg.message, {
+            messageId: ListMsg.key.id,
+            quoted: quoted,
+  })
 }
 
 /*<--------------------( EVAL )--------------------->*/    
@@ -1382,7 +1467,14 @@ case prefix + ['gptvoice'] : case prefix + ['aivn'] : {
            }
         }
         break      
-
+ 
+case prefix + ['backup'] : {
+	const ls = (await execSync('ls')).toString().split('\n').filter(pe => pe != 'node_modules' && pe != 'package-lock.json' && pe != 'session' && pe != 'Dockerfile' && pe != 'yarn.lock' && pe != '')
+    const executed_bp = await execSync(`zip -r backup_bot.zip ${ls.join(' ')}`)
+    await client.sendMessage(global.ownerNumber + "@s.whatsapp.net", {document: await fs.readFileSync('./backup_bot.zip'), mimetype: 'application/zip', fileName: 'backup_bot.zip'}, {quoted: msg })
+    await execSync('rm -rf backup_bot.zip')
+  }
+break
 
     //=============================0==========================// 
                                            /* { akhir case } */  
